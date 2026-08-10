@@ -1,982 +1,1117 @@
 <!DOCTYPE html>
-
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 找書</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 找書 - L&B Library & Book</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            "Noto Sans TC",
-            "Microsoft JhengHei",
-            sans-serif;
-        color: #263238;
-        background: #f4f8f8;
-        line-height: 1.7;
-    }
-
-    .container {
-        width: min(1100px, calc(100% - 40px));
-        margin: 0 auto;
-    }
-
-    /* Header */
-    .hero {
-        padding: 60px 0 40px;
-        text-align: center;
-    }
-
-    .hero-icon {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 18px;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #e1f3f1;
-        color: #168b84;
-        font-size: 30px;
-    }
-
-    .hero h1 {
-        margin: 0 0 10px;
-        font-size: 36px;
-        font-weight: 700;
-        letter-spacing: .02em;
-        color: #183c3a;
-    }
-
-    .hero p {
-        margin: 0;
-        color: #687878;
-        font-size: 16px;
-    }
-
-    /* Search */
-    .search-box {
-        background: #fff;
-        border-radius: 20px;
-        padding: 28px;
-        box-shadow: 0 8px 30px rgba(31, 72, 70, .08);
-        border: 1px solid #e2eeee;
-    }
-
-    .input-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .input-title {
-        font-size: 17px;
-        font-weight: 700;
-        color: #294746;
-    }
-
-    .counter {
-        color: #849494;
-        font-size: 14px;
-    }
-
-    .counter.warning {
-        color: #d77b37;
-    }
-
-    #query {
-        width: 100%;
-        min-height: 100px;
-        resize: vertical;
-        border: 1px solid #cbdcdb;
-        border-radius: 12px;
-        padding: 15px 16px;
-        font: inherit;
-        font-size: 16px;
-        color: #263b3a;
-        outline: none;
-        transition: border-color .2s, box-shadow .2s;
-    }
-
-    #query:focus {
-        border-color: #2ca69e;
-        box-shadow: 0 0 0 4px rgba(44, 166, 158, .12);
-    }
-
-    .actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-top: 18px;
-    }
-
-    .btn {
-        border: 0;
-        border-radius: 10px;
-        padding: 11px 20px;
-        font: inherit;
-        font-weight: 600;
-        cursor: pointer;
-        transition: .2s;
-    }
-
-    .btn:disabled {
-        cursor: not-allowed;
-        opacity: .55;
-    }
-
-    .btn-random {
-        background: #eef5f4;
-        color: #37706d;
-    }
-
-    .btn-random:hover:not(:disabled) {
-        background: #e0eeec;
-    }
-
-    .btn-search {
-        min-width: 130px;
-        background: #168f87;
-        color: #fff;
-    }
-
-    .btn-search:hover:not(:disabled) {
-        background: #117a74;
-    }
-
-    /* Examples */
-    .examples {
-        margin-top: 22px;
-    }
-
-    .examples-title {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-    }
-
-    .examples-title strong {
-        font-size: 15px;
-        color: #526967;
-    }
-
-    .example-list {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    .example-item {
-        padding: 11px 13px;
-        border-radius: 10px;
-        background: #f5f9f8;
-        border: 1px solid #e1ebea;
-        color: #49615f;
-        font-size: 14px;
-        cursor: pointer;
-        transition: .2s;
-    }
-
-    .example-item:hover {
-        background: #e6f4f2;
-        border-color: #b9ddda;
-        color: #167d77;
-    }
-
-    /* Loading */
-    .loading {
-        display: none;
-        text-align: center;
-        padding: 40px 0 20px;
-    }
-
-    .spinner {
-        width: 38px;
-        height: 38px;
-        margin: 0 auto 12px;
-        border: 4px solid #dcebea;
-        border-top-color: #168f87;
-        border-radius: 50%;
-        animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .loading-text {
-        color: #6d7f7d;
-        font-size: 14px;
-    }
-
-    /* Results */
-    .results-section {
-        margin: 42px 0 60px;
-    }
-
-    .results-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        margin-bottom: 18px;
-    }
-
-    .results-header h2 {
-        margin: 0;
-        font-size: 22px;
-        color: #254543;
-    }
-
-    .result-count {
-        color: #82918f;
-        font-size: 14px;
-    }
-
-    .book-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 18px;
-    }
-
-    .book-card {
-        background: #fff;
-        border: 1px solid #e1eceb;
-        border-radius: 16px;
-        padding: 22px;
-        box-shadow: 0 5px 20px rgba(30, 70, 68, .05);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .book-title {
-        margin: 0 0 14px;
-        font-size: 19px;
-        line-height: 1.5;
-        color: #1f4643;
-    }
-
-    .book-meta {
-        margin-bottom: 12px;
-        color: #637572;
-        font-size: 14px;
-    }
-
-    .book-meta div {
-        margin-bottom: 4px;
-    }
-
-    .meta-label {
-        display: inline-block;
-        width: 48px;
-        color: #849491;
-    }
-
-    .book-summary {
-        margin: 8px 0 18px;
-        color: #536562;
-        font-size: 14px;
-        flex: 1;
-    }
-
-    .book-link {
-        display: inline-block;
-        align-self: flex-start;
-        padding: 8px 14px;
-        border-radius: 8px;
-        background: #edf7f5;
-        color: #157c76;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    .book-link:hover {
-        background: #dcefeb;
-    }
-
-    /* Message */
-    .message {
-        display: none;
-        margin-top: 25px;
-        padding: 15px 18px;
-        border-radius: 10px;
-        font-size: 14px;
-    }
-
-    .message.error {
-        background: #fff1ef;
-        color: #b64b3f;
-        border: 1px solid #f2d0cb;
-    }
-
-    .empty {
-        text-align: center;
-        padding: 45px 20px;
-        color: #899694;
-        background: #fff;
-        border-radius: 15px;
-        border: 1px solid #e5eeee;
-    }
-
-    /* Footer */
-    footer {
-        text-align: center;
-        padding: 25px 0 40px;
-        color: #91a09e;
-        font-size: 13px;
-    }
-
-    @media (max-width: 760px) {
-        .container {
-            width: min(100% - 24px, 600px);
+    <style>
+        :root {
+            --primary-color: #009688;
+            --primary-hover: #00796b;
+            --primary-light: #e0f2f1;
+            --accent-teal: #11999e;
+            --dark-blue: #028090;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+            --bg-light: #f8f9fa;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .hero {
-            padding: 40px 0 28px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .hero h1 {
-            font-size: 30px;
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .search-box {
-            padding: 20px;
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
         }
 
-        .example-list,
-        .book-list {
-            grid-template-columns: 1fr;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
         }
 
-        .actions {
-            flex-direction: column-reverse;
-            align-items: stretch;
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #00a896, #028090);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0, 168, 150, 0.3);
         }
 
-        .btn {
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a365d;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: #00a896;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-decoration: none;
+            color: #00796b;
+            border: 1px solid #b2dfdb;
+            background-color: #f0fdfa;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            background-color: #009688;
+            color: #ffffff;
+            border-color: #009688;
+        }
+
+        .hero-section {
+            position: relative;
+            background: linear-gradient(rgba(10, 35, 40, 0.75), rgba(10, 35, 40, 0.85)), 
+                        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            padding: 70px 20px 80px;
+            color: white;
+            text-align: center;
+            box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .hero-title span {
+            color: #4db6ac;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: #e0f2f1;
+            margin-bottom: 35px;
+            font-weight: 300;
+        }
+
+        .search-box-wrapper {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .search-box-wrapper:focus-within {
+            border-color: #26a69a;
+            box-shadow: 0 15px 40px rgba(38, 166, 154, 0.4);
+        }
+
+        .input-icon {
+            color: #00897b;
+            font-size: 20px;
+            padding-left: 16px;
+        }
+
+        .search-input {
             width: 100%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 12px 5px;
+            color: #2c3e50;
+            background: transparent;
+            font-family: inherit;
         }
-    }
-</style>
 
+        .char-counter {
+            font-size: 13px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            padding-right: 10px;
+            font-weight: 500;
+        }
+
+        .char-counter.limit-near {
+            color: #f39c12;
+        }
+
+        .char-counter.limit-reached {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            background: linear-gradient(135deg, #009688, #00796b);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0, 150, 136, 0.4);
+        }
+
+        .btn-search:hover {
+            background: linear-gradient(135deg, #00897b, #004d40);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 150, 136, 0.5);
+        }
+
+        .btn-search:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .scenarios-wrapper {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .scenarios-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .scenarios-title {
+            font-size: 14px;
+            color: #b2dfdb;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-refresh {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #ffffff;
+        }
+
+        .btn-refresh i {
+            transition: transform 0.4s ease;
+        }
+
+        .btn-refresh:hover i {
+            transform: rotate(180deg);
+        }
+
+        .scenario-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .scenario-tag {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #e0f2f1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .scenario-tag:hover {
+            background: #ffffff;
+            color: #004d40;
+            border-color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .main-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .results-title {
+            font-size: 22px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-count {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Loading UI */
+        .loading-container {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #b2dfdb;
+            border-top: 5px solid #009688;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        /* Books Grid Layout */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #eef2f5;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0, 150, 136, 0.15);
+            border-color: #b2dfdb;
+        }
+
+        .book-card-header {
+            background: linear-gradient(135deg, #f0fdfa, #e6fffa);
+            padding: 18px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .book-card-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary-color);
+        }
+
+        .book-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a365d;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-score {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 150, 136, 0.1);
+            color: #00796b;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .book-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .book-meta {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 13.5px;
+            color: var(--text-dark);
+        }
+
+        .book-meta i {
+            color: var(--primary-color);
+            margin-top: 3px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .book-meta-label {
+            font-weight: 600;
+            color: #4a5568;
+            white-space: nowrap;
+        }
+
+        .book-summary-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            color: #4a5568;
+            border-left: 3px solid #cbd5e0;
+            margin-top: 4px;
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .book-card-footer {
+            padding: 15px 20px;
+            background: #ffffff;
+            border-top: 1px solid #edf2f7;
+            text-align: right;
+        }
+
+        .btn-detail {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            background: #ffffff;
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-detail:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 150, 136, 0.25);
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 12px;
+            border: 2px dashed #e2e8f0;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #cbd5e0;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 25px 20px;
+            text-align: center;
+            color: #718096;
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #4a5568;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .alert-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #fff5f5;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            header {
+                padding: 12px 15px;
+            }
+            .hero-title {
+                font-size: 28px;
+            }
+            .hero-subtitle {
+                font-size: 14px;
+            }
+            .search-box-wrapper {
+                flex-direction: column;
+                padding: 12px;
+            }
+            .btn-search {
+                width: 100%;
+                justify-content: center;
+            }
+            .input-icon {
+                display: none;
+            }
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-
-```
-<header class="hero">
-    <div class="hero-icon">📚</div>
-    <h1>AI 找書</h1>
-    <p>用自然語言描述你想找的書，讓 AI 幫你找到適合的館藏。</p>
-</header>
-
-<main>
-
-    <section class="search-box">
-
-        <div class="input-header">
-            <div class="input-title">你想找什麼書？</div>
-            <div class="counter">
-                <span id="charCount">0</span> / 50
+    <header>
+        <a href="#" class="logo-container">
+            <div class="logo-icon">
+                <i class="fa-solid fa-book-bookmark"></i>
             </div>
+            <div class="logo-text">
+                <span class="logo-title">L&B</span>
+                <span class="logo-subtitle">Library & Book</span>
+            </div>
+        </a>
+        <div class="header-nav">
+            <span class="nav-btn"><i class="fa-solid fa-globe"></i> Language</span>
+            <span class="nav-btn"><i class="fa-solid fa-user"></i> 碩睿</span>
         </div>
+    </header>
 
-        <textarea
-            id="query"
-            maxlength="50"
-            placeholder="例如：我想找適合國中生閱讀的科學書籍"
-        ></textarea>
+    <section class="hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">AI <span>語意智慧找書</span></h1>
+            <p class="hero-subtitle">輸入您當下的心情、想探討的情境或閱讀需求，AI 為您精準推薦最適合的館藏藏書</p>
 
-        <div class="actions">
-            <button type="button" class="btn btn-random" id="randomBtn">
-                🔄 換一組
-            </button>
-
-            <button type="button" class="btn btn-search" id="searchBtn">
-                AI 找書
-            </button>
-        </div>
-
-        <div class="examples">
-            <div class="examples-title">
-                <strong>不知道怎麼描述？試試看：</strong>
+            <div class="search-box-wrapper">
+                <i class="fa-solid fa-wand-magic-sparkles input-icon"></i>
+                <input type="text" id="scenario-input" class="search-input" maxlength="50" placeholder="例如：想看關於職場心理學與溝通技巧的書..." autocomplete="off">
+                <span class="char-counter" id="char-counter">0/50</span>
+                <button type="button" id="btn-ai-search" class="btn-search">
+                    <i class="fa-solid fa-magnifying-glass"></i> AI 找書
+                </button>
             </div>
 
-            <div class="example-list" id="exampleList"></div>
+            <div class="scenarios-wrapper">
+                <div class="scenarios-header">
+                    <span class="scenarios-title"><i class="fa-regular fa-lightbulb"></i> 熱門搜尋情境範例（點擊填入）：</span>
+                    <button type="button" id="btn-refresh-scenarios" class="btn-refresh">
+                        <i class="fa-solid fa-arrows-rotate"></i> 換一組
+                    </button>
+                </div>
+                <div class="scenario-tags" id="scenario-tags-container">
+                    <!-- Dynamic scenario tags rendered by jQuery -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <!-- Error Alert Container -->
+        <div id="error-alert" class="alert-message">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="error-text">發生錯誤，請稍後再試。</span>
         </div>
 
-        <div class="message error" id="errorMessage"></div>
-
-    </section>
-
-    <section class="loading" id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">AI 正在為你尋找適合的書籍…</div>
-    </section>
-
-    <section class="results-section" id="resultsSection" style="display:none;">
-
-        <div class="results-header">
-            <h2>推薦書籍</h2>
-            <span class="result-count" id="resultCount"></span>
+        <div class="results-header" id="results-header" style="display: none;">
+            <h2 class="results-title">
+                <i class="fa-solid fa-square-poll-vertical" style="color: var(--primary-color);"></i> 推薦書單結果
+            </h2>
+            <span class="results-count" id="results-count">0 筆藏書</span>
         </div>
 
-        <div class="book-list" id="bookList"></div>
-
-    </section>
-
-</main>
-
-<footer>
-    AI 找書
-</footer>
-```
-
-</div>
-
-<script>
-$(function () {
-
-    var API_URL = "https://artapi.zeabur.app/koha_crm/api/search";
-
-    /*
-     * 200 筆情境範例
-     */
-    var examples = [
-        "適合國中生閱讀的科學書",
-        "想找人工智慧入門的書",
-        "適合親子一起閱讀的繪本",
-        "介紹台灣歷史的書籍",
-        "關於心理學入門的書",
-        "想學習投資理財",
-        "適合小學生看的自然科普",
-        "介紹世界各國文化的書",
-        "關於時間管理的方法",
-        "適合退休人士閱讀的書",
-        "想了解宇宙與太空",
-        "關於環境保護的書",
-        "適合青少年閱讀的小說",
-        "想找經典文學作品",
-        "關於健康生活的書",
-        "學習程式設計的入門書",
-        "想了解區塊鏈技術",
-        "介紹攝影技巧的書",
-        "關於旅行與自助旅行",
-        "適合初學者的英文學習書",
-        "想學習日文",
-        "關於中國歷史的書",
-        "介紹台灣原住民族文化",
-        "想了解第二次世界大戰",
-        "關於藝術欣賞的書",
-        "適合喜歡推理小說的人",
-        "關於職場溝通的書",
-        "想提升寫作能力",
-        "關於領導與管理",
-        "適合創業者閱讀的書",
-        "想了解經濟學",
-        "關於哲學思考的書",
-        "適合高中生閱讀的歷史書",
-        "想找有趣的數學書",
-        "關於生物學的科普書",
-        "介紹人體構造的書",
-        "關於海洋生態的書",
-        "想了解氣候變遷",
-        "關於永續發展的書",
-        "適合兒童閱讀的故事書",
-        "想找溫馨感人的小說",
-        "關於友情的小說",
-        "適合睡前閱讀的故事",
-        "想找幽默有趣的書",
-        "關於家庭關係的書",
-        "想了解親職教育",
-        "適合老師閱讀的教育書籍",
-        "關於特殊教育的書",
-        "想了解學習方法",
-        "如何提升記憶力",
-        "關於閱讀技巧的書",
-        "想找圖書館相關書籍",
-        "關於資訊素養的書",
-        "想了解媒體識讀",
-        "關於網路安全的書",
-        "適合初學者的電腦書",
-        "想學網頁設計",
-        "關於 UX 設計的書",
-        "想學 UI 設計",
-        "介紹平面設計的書",
-        "關於使用者體驗的書",
-        "想學 CSS",
-        "想學 JavaScript",
-        "適合程式設計初學者",
-        "關於資料科學的書",
-        "想了解大數據",
-        "關於機器學習的入門書",
-        "想了解深度學習",
-        "關於自然語言處理的書",
-        "想了解生成式 AI",
-        "關於機器人的書",
-        "介紹科技發展的書",
-        "想了解未來科技",
-        "關於網路發展歷史",
-        "想找科幻小說",
-        "關於未來世界的小說",
-        "適合喜歡冒險故事的人",
-        "想找奇幻小說",
-        "關於魔法世界的小說",
-        "適合喜歡歷史小說的人",
-        "想找日本文學",
-        "想找美國文學",
-        "想找歐洲文學",
-        "關於現代文學的書",
-        "想找短篇小說",
-        "適合初學者的詩集",
-        "關於散文寫作的書",
-        "想提升閱讀理解能力",
-        "適合國小高年級的讀物",
-        "適合國小低年級的繪本",
-        "適合幼兒閱讀的書",
-        "關於兒童心理的書",
-        "想找親子共讀書籍",
-        "適合家庭一起閱讀",
-        "關於兒童教育的書",
-        "想了解兒童成長",
-        "關於青少年心理的書",
-        "適合高中生的課外讀物",
-        "想找大學生推薦書",
-        "關於大學生活的書",
-        "適合研究生閱讀的書",
-        "想找學術研究方法",
-        "關於論文寫作的書",
-        "想學習資料分析",
-        "關於統計學入門",
-        "想了解商業管理",
-        "關於行銷的書",
-        "想學數位行銷",
-        "關於品牌經營的書",
-        "想了解社群媒體行銷",
-        "關於消費者行為的書",
-        "想學習簡報技巧",
-        "關於溝通表達的書",
-        "想提升口才",
-        "關於人際關係的書",
-        "想了解情緒管理",
-        "關於壓力管理的書",
-        "想提升自我管理能力",
-        "關於人生規劃的書",
-        "想找勵志書籍",
-        "關於個人成長的書",
-        "想培養好習慣",
-        "關於職涯規劃的書",
-        "想了解職場文化",
-        "關於工作效率的書",
-        "想學習專案管理",
-        "關於企業管理的書",
-        "想了解組織行為",
-        "關於人力資源管理",
-        "想了解金融市場",
-        "關於股票投資的書",
-        "想學基金投資",
-        "關於個人理財的書",
-        "想了解保險",
-        "關於退休規劃的書",
-        "想了解房地產投資",
-        "關於會計入門的書",
-        "想了解稅務相關知識",
-        "關於法律常識的書",
-        "想了解智慧財產權",
-        "關於著作權的書",
-        "想了解網路法律",
-        "關於犯罪心理學的書",
-        "想了解社會學",
-        "關於人類學的書",
-        "想了解政治學",
-        "關於國際關係的書",
-        "想了解世界局勢",
-        "關於地理的書",
-        "想認識世界各地",
-        "介紹台灣地理的書",
-        "關於台灣文化的書",
-        "介紹台灣民俗的書",
-        "關於台灣文學的書",
-        "想找台灣作家的作品",
-        "介紹台灣自然景觀",
-        "關於台灣生態的書",
-        "想了解台灣歷史人物",
-        "關於中國古代史",
-        "介紹世界文明史",
-        "關於古埃及文明",
-        "想了解希臘羅馬文明",
-        "關於考古學的書",
-        "想了解宗教文化",
-        "關於神話故事的書",
-        "介紹世界各地傳說",
-        "關於民間故事的書",
-        "想找經典童話",
-        "適合兒童的歷史故事",
-        "適合兒童的科學故事",
-        "適合兒童的冒險故事",
-        "想找有教育意義的繪本",
-        "關於品格教育的繪本",
-        "適合學習同理心的故事",
-        "關於生命教育的書",
-        "想了解環境教育",
-        "適合教師教學使用的書",
-        "關於閱讀教育的書",
-        "想了解圖書館學",
-        "關於資訊管理的書",
-        "想了解檔案管理",
-        "關於數位圖書館的書",
-        "想了解知識管理",
-        "關於人工智慧與圖書館",
-        "想找推薦閱讀相關書籍",
-        "關於閱讀推廣的書",
-        "想找適合圖書館活動的書",
-        "關於書籍設計的書",
-        "想了解出版產業",
-        "關於編輯工作的書",
-        "想了解寫作出版",
-        "想找適合假日閱讀的書",
-        "適合搭車閱讀的書",
-        "想找輕鬆好看的小說",
-        "適合喜歡動物的人",
-        "關於狗狗的書",
-        "關於貓咪的書",
-        "關於鳥類的書",
-        "關於昆蟲的書",
-        "關於植物的書",
-        "想學園藝",
-        "關於料理的書",
-        "想學烘焙",
-        "關於咖啡的書",
-        "想了解葡萄酒文化",
-        "關於旅行攝影的書",
-        "想學繪畫",
-        "關於水彩畫的書",
-        "想學書法",
-        "關於音樂欣賞的書",
-        "想了解電影藝術",
-        "關於戲劇的書",
-        "想了解建築設計",
-        "關於室內設計的書",
-        "想學服裝設計",
-        "關於工藝美術的書",
-        "想找適合銀髮族的閱讀書籍"
-    ];
-
-    /*
-     * 取得 6 個不重複的隨機情境
-     */
-    function getRandomExamples() {
-
-        var shuffled = examples.slice();
-
-        for (var i = shuffled.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var temp = shuffled[i];
-            shuffled[i] = shuffled[j];
-            shuffled[j] = temp;
-        }
-
-        return shuffled.slice(0, 6);
-    }
-
-    /*
-     * 顯示情境
-     */
-    function renderExamples() {
-
-        var list = getRandomExamples();
-
-        $("#exampleList").empty();
-
-        $.each(list, function (index, text) {
-
-            var item = $("<div>")
-                .addClass("example-item")
-                .text(text)
-                .attr("role", "button")
-                .attr("tabindex", "0");
-
-            item.on("click", function () {
-                $("#query").val(text).trigger("input").focus();
-            });
-
-            item.on("keydown", function (e) {
-                if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    $("#query").val(text).trigger("input").focus();
-                }
-            });
-
-            $("#exampleList").append(item);
-        });
-    }
-
-    /*
-     * 更新字數
-     */
-    function updateCounter() {
-
-        var length = $("#query").val().length;
-
-        $("#charCount").text(length);
-
-        if (length >= 45) {
-            $(".counter").addClass("warning");
-        } else {
-            $(".counter").removeClass("warning");
-        }
-    }
-
-    /*
-     * 顯示錯誤
-     */
-    function showError(message) {
-
-        $("#errorMessage")
-            .text(message)
-            .stop(true, true)
-            .fadeIn(200);
-    }
-
-    /*
-     * 清除錯誤
-     */
-    function hideError() {
-        $("#errorMessage").hide().text("");
-    }
-
-    /*
-     * Loading
-     */
-    function setLoading(isLoading) {
-
-        if (isLoading) {
-
-            $("#loading").stop(true, true).fadeIn(150);
-
-            $("#searchBtn")
-                .prop("disabled", true)
-                .text("搜尋中…");
-
-            $("#randomBtn").prop("disabled", true);
-
-        } else {
-
-            $("#loading").stop(true, true).fadeOut(150);
-
-            $("#searchBtn")
-                .prop("disabled", false)
-                .text("AI 找書");
-
-            $("#randomBtn").prop("disabled", false);
-        }
-    }
-
-    /*
-     * 顯示搜尋結果
-     */
-    function renderResults(results) {
-
-        $("#bookList").empty();
-
-        if (!results || results.length === 0) {
-
-            $("#resultCount").text("");
-
-            $("#bookList").html(
-                '<div class="empty">目前沒有找到符合條件的書籍。</div>'
-            );
-
-            $("#resultsSection").fadeIn(200);
-
-            return;
-        }
-
-        $("#resultCount").text("找到 " + results.length + " 本");
-
-        $.each(results, function (index, book) {
-
-            var title = book.title || "未提供書名";
-            var authors = book.authors || "未提供作者";
-            var isbn = book.isbn || "未提供 ISBN";
-            var summary = book.summary || "暫無摘要";
-            var bookId = book.id || "";
-
-            var detailUrl =
-                "https://lb30.libraryandbook.net/Book_detial/" +
-                encodeURIComponent(bookId);
-
-            var card = $("<article>").addClass("book-card");
-
-            $("<h3>")
-                .addClass("book-title")
-                .text(title)
-                .appendTo(card);
-
-            var meta = $("<div>")
-                .addClass("book-meta");
-
-            $("<div>")
-                .html(
-                    '<span class="meta-label">作者</span>' +
-                    $('<span>').text(authors).prop("outerHTML")
-                )
-                .appendTo(meta);
-
-            $("<div>")
-                .html(
-                    '<span class="meta-label">ISBN</span>' +
-                    $('<span>').text(isbn).prop("outerHTML")
-                )
-                .appendTo(meta);
-
-            meta.appendTo(card);
-
-            $("<div>")
-                .addClass("book-summary")
-                .text(summary)
-                .appendTo(card);
-
-            $("<a>")
-                .addClass("book-link")
-                .attr("href", detailUrl)
-                .attr("target", "_blank")
-                .attr("rel", "noopener noreferrer")
-                .text("檢視詳細館藏 →")
-                .appendTo(card);
-
-            $("#bookList").append(card);
-        });
-
-        $("#resultsSection").fadeIn(200);
-    }
-
-    /*
-     * 執行搜尋
-     */
-    function searchBooks() {
-
-        hideError();
-
-        var query = $("#query").val().trim();
-
-        if (!query) {
-            showError("請先輸入你想找的書籍內容。");
-            $("#query").focus();
-            return;
-        }
-
-        if (query.length > 50) {
-            showError("搜尋內容不能超過 50 個字。");
-            $("#query").focus();
-            return;
-        }
-
-        setLoading(true);
-
-        $.ajax({
-            url: API_URL,
-            method: "POST",
-            contentType: "application/json",
-            dataType: "json",
-            data: JSON.stringify({
-                query: query
-            }),
-
-            success: function (response) {
-
-                if (response && response.results) {
-                    renderResults(response.results);
-                } else {
-                    renderResults([]);
-                }
-            },
-
-            error: function (xhr) {
-
-                var message = "搜尋失敗，請稍後再試。";
-
-                if (xhr.responseJSON) {
-
-                    if (xhr.responseJSON.message) {
-                        message = xhr.responseJSON.message;
-                    } else if (xhr.responseJSON.error) {
-                        message = xhr.responseJSON.error;
-                    }
-                }
-
-                if (xhr.status === 429) {
-                    message = "搜尋次數過於頻繁，請稍後再試。";
-                }
-
-                if (xhr.status === 413) {
-                    message = "搜尋內容不能超過 50 個字。";
-                }
-
-                showError(message);
-            },
-
-            complete: function () {
-                setLoading(false);
+        <!-- Loading Spinner Container -->
+        <div id="loading-container" class="loading-container">
+            <div class="spinner"></div>
+            <p class="loading-text"><i class="fa-solid fa-brain fa-pulse"></i> AI 正在為您分析語意並搜尋最符合藏書...</p>
+        </div>
+
+        <!-- Book Cards Grid -->
+        <div id="books-grid" class="books-grid">
+            <div class="empty-state">
+                <i class="fa-solid fa-book-open-reader"></i>
+                <h3>尚未進行搜尋</h3>
+                <p>請在上方輸入情境描述，或點擊情境範例標籤開始找書。</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">問題集</a> |
+            <a href="#">網站地圖</a> |
+            <a href="#">網站說明</a> |
+            <a href="#">版權說明</a>
+        </div>
+        <div>版權所有 碩亞數碼科技有限公司 ASIAWORLD Digital Technology Co., Ltd. © All Rights Reserved.</div>
+    </footer>
+
+    <script>
+        // 預設 200 筆隨機情境範例資料庫
+        const SCENARIO_DATABASE = [
+            "想看關於職場心理學與溝通技巧的書",
+            "推薦適合夜深人靜時閱讀的心靈療癒小說",
+            "有沒有介紹人工智慧與未來科技發展的經典書籍",
+            "想了解台灣歷史與民俗文化的書籍",
+            "適合對財務自由與投資理財剛入門的新手看",
+            "想找能提升專注力與時間管理效率的實用書",
+            "推薦感人肺腑且情節轉折高潮的懸疑推理小說",
+            "想了解量子力學與物理學發展的故事",
+            "適合青少年閱讀的勵志冒險與成長故事",
+            "關於極簡主義與斷捨離的生活美學提案",
+            "想尋找介紹世界各國經典建築與設計的書",
+            "適合親子共讀的哲學思考與繪本圖書",
+            "推薦給領導者如何打造高績效團隊的書籍",
+            "想看探討現代人孤獨感與情緒調節的心理學",
+            "有什麼關於北歐生活哲學 Hygge 的書籍",
+            "想了解咖啡文化與烘焙歷史的專業圖書",
+            "介紹全球氣候變遷與永續發展綠能的書籍",
+            "推薦給創業者看完能獲得啟發的商業傳記",
+            "想探討人類歷史發展與文明演進的大歷史",
+            "適合週末放鬆閱讀的日本療癒系日常小說",
+            "想學習自我成長與建立良好習慣的行為心理學",
+            "介紹攝影技巧與視覺美學構圖的專書",
+            "想看關於歐洲中世紀歷史與騎士文化的書",
+            "適合想開始學習手作料理與烘焙的新手指南",
+            "推薦關於人工智慧倫理與哲學思考的討論書",
+            "想了解大腦神經科學與記憶力訓練的圖書",
+            "適合高壓上班族的舒壓瑜珈與冥想導引書",
+            "想尋找介紹古典音樂大師生平與名曲導覽",
+            "推薦經典的科幻太空冒險與反烏托邦小說",
+            "想提升自我表達與公眾演講能力的實用書籍",
+            "介紹世界名畫賞析與藝術史演變的書籍",
+            "適合新手建立個人品牌與社群行銷的專書",
+            "想了解現代經濟學基礎與市場運作邏輯",
+            "推薦探討親子關係與正向教養的心理書籍",
+            "想看有關宇宙探索與天文學知識的普及讀物",
+            "介紹茶道文化與東方生活美學的精緻好書",
+            "適合自我探索與釐清人生方向的哲學讀本",
+            "推薦關於運動科學與健康飲食管理指南",
+            "想了解電影編劇與劇本創作結構的專業書籍",
+            "介紹世界經典文學名著導讀與剖析",
+            "想尋找關於高敏感族群如何自我照顧的心理書",
+            "適合想學習第二外語與高效記憶法的書籍",
+            "推薦探討網路安全與駭客防禦概念的技術書",
+            "想了解古希臘羅馬哲學家智慧的經典詮釋",
+            "介紹登山步道與野外求生技能的戶外圖書",
+            "想看關於跨文化溝通與國際禮儀的書籍",
+            "適合對室內設計與空間規劃有興趣的入門書",
+            "推薦探討區塊鏈與加密貨幣未來趨勢的專書",
+            "想了解台灣傳統戲曲與舞台藝術的歷史",
+            "適合想了解睡眠科學與提升睡眠品質的書籍",
+            "想看關於貓狗寵物行為學與照護知識的書",
+            "推薦經典的心理學實驗與人性思考圖書",
+            "想學習邏輯思考與批判性思維的訓練專書",
+            "介紹東南亞各國風土民情與歷史發展的圖書",
+            "適合對程式設計與演算法感興趣的入門書",
+            "推薦關於文案撰寫與故事行銷的實用技巧",
+            "想了解近代中國歷史演變與重要人物傳記",
+            "介紹芳香療法與植物精油應用的健康書籍",
+            "想找關於談判籌碼與說服心理學的著作",
+            "適合增進夫妻婚姻感情與親密關係溝通的書",
+            "推薦探討現代社會學現象與階級流動的專書",
+            "想看關於微型創業與副業變現的實戰手冊",
+            "介紹植物名錄與家庭園藝栽種的實用書",
+            "想了解心理諮商技巧與自我療癒的輔導書",
+            "適合想提升專案管理技巧（Agile/Scrum）的書",
+            "推薦探索世界神話體系與民間傳說的書籍",
+            "想看關於字體設計與排版美學的專業圖書",
+            "介紹世界著名博物館巡禮與館藏導覽",
+            "適合想了解情緒勒索與建立人際界線的書籍",
+            "推薦關於永續農業與有機栽培的實務指南",
+            "想了解近代西洋哲學思想流派演變",
+            "介紹精益創業（Lean Startup）與產品開發",
+            "想看關於手作皮革與工藝設計的質感書籍",
+            "適合對古典詩詞賞析有興趣的文學愛好者",
+            "推薦探討孤獨經濟與單身社會趨勢的書籍",
+            "想了解日本武士道精神與歷史發展",
+            "介紹聲音訓練與發音技巧的口語溝通書",
+            "適合家長引導兒童情緒管理的童書繪本",
+            "推薦關於數位轉型與企業創新營運策略",
+            "想了解人類基因組與生物科技革命的圖書",
+            "介紹全球頂尖大學經典課程與學習思維",
+            "想看關於酒類品鑑與葡萄酒文化考據的書",
+            "適合想建立正念生活態度與減壓的書籍",
+            "推薦探討當代社會孤獨病與社交焦慮的書",
+            "想了解台灣古蹟建築與老屋改建的故事",
+            "介紹簡報視覺設計與數據圖表化的技巧",
+            "適合對童話故事背後隱喻與心理學剖析的書",
+            "推薦關於老齡化社會與長照關懷趨勢的書",
+            "想了解賽局理論及其在日常生活中的應用",
+            "介紹國際地緣政治與全球貿易局勢剖析",
+            "想看關於城市規劃與宜居城市發展的圖書",
+            "適合新手學習基礎木工與手作家具的手冊",
+            "推薦探討當代藝術投資與拍賣市場的書籍",
+            "想了解心理學視角下的幸福感與快樂源泉",
+            "介紹印度瑜伽哲學與經絡養生的導覽書",
+            "適合增進職場敏捷應變與抗壓韌性的專書",
+            "推薦探討女性主義發展與當代性別議題",
+            "想了解中古世紀黑死病與人類傳染病史",
+            "介紹數據分析與 Python 資料處理入門",
+            "想看關於散文集與隨筆創作的質感文學",
+            "適合對西洋占星學與塔羅牌符號感興趣的書",
+            "推薦探討自律與延遲享樂的行為心理學",
+            "想了解中古世紀城堡與攻防戰略歷史",
+            "介紹遊戲設計與玩家心理學的專務書籍",
+            "適合對地方創生與社區營造案例研究的書",
+            "推薦探討行為經濟學與消費心理學的書籍",
+            "想了解日本職人精神與工藝傳承的故事",
+            "介紹高層建築工程與結構設計的科普書",
+            "想看關於古典芭蕾與現代舞蹈發展史的書籍",
+            "適合探討老年心靈關懷與安寧療護的書",
+            "推薦關於系統思考與解決複雜問題的書籍",
+            "想了解海洋生物學與深海探索的科普讀物",
+            "介紹用戶體驗設計（UX/UI）的核心原則",
+            "適合想提高閱讀速度與理解力的速讀訓練",
+            "推薦關於品牌故事打造與精神定位的專書",
+            "想了解冷戰時期諜報歷史與國際暗鬥",
+            "介紹手工麵包發酵與烘焙原理的專業書",
+            "想看關於當代繪本插畫家作品集與賞析",
+            "適合對中醫養生與四季時令飲食感興趣的書",
+            "推薦探討網路霸凌與數位時代隱私的書籍",
+            "想了解古典樂器發展歷史與名琴傳奇",
+            "介紹靈魂哲學與生死學思考的深度書籍",
+            "適合新手學習日式收納與家居清理的書",
+            "推薦關於團隊溝通衝突解決與修復的書籍",
+            "想了解古埃及文明與金字塔解密研究",
+            "介紹動畫製作流程與分鏡腳本繪製教學",
+            "想看關於傳統節慶由來與民俗信仰的書",
+            "適合對極限運動與冒險家紀錄有興趣的書",
+            "推薦探討現代廣告心理學與暗示技術的書",
+            "想了解量子電腦與未來資訊科技的革新",
+            "介紹個人財務報表分析與股票價值投資",
+            "想看關於非暴力溝通（NVC）與同理心實踐",
+            "適合想了解世界宗教起源與比較宗教學",
+            "推薦關於氣味記憶與香水調配文化的書籍",
+            "想了解台灣原生植物與森林生態導覽",
+            "介紹跨國企業品牌行銷失敗案例探討",
+            "想看關於心理創傷修復與內在小孩療癒",
+            "適合對桌上遊戲設計與機制邏輯感興趣的書",
+            "推薦探討全球供應鏈與物流管理的書籍",
+            "想了解法國大革命與歐洲民主化進程",
+            "介紹咖啡豆產區風味與手沖咖啡實驗",
+            "想看關於科幻小說中的AI叛變與星際移民",
+            "適合學習說故事技巧（Storytelling）的書籍",
+            "推薦關於現代藝術大師（如畢卡索、梵谷）傳記",
+            "想了解認知神經科學與決策偏誤的書籍",
+            "介紹家庭理財規劃與退休基金籌備指南",
+            "想看關於兒童心理發展與語言啟蒙的書籍",
+            "適合對傳統摺紙工藝與幾何學感興趣的書",
+            "推薦探討智慧城市與物聯網 (IoT) 應用的書",
+            "想了解古希臘戲劇與悲劇精神的經典解讀",
+            "介紹室內植栽佈置與多肉植物照護手冊",
+            "想看關於情緒智商 (EQ) 與人際溝通訓練",
+            "適合想探討阿德勒個體心理學應用的書籍",
+            "推薦關於永續時尚與環保材質革新的書籍",
+            "想了解台灣鐵道歷史與懷舊火車之旅",
+            "介紹數據導向決策與 A/B 測試方法論",
+            "想看關於文學大師（如海明威、馬爾庫斯）經典",
+            "適合新手學習基礎色彩學與配色法則的書",
+            "推薦探討現代焦慮症與恐慌症的克服指南",
+            "想了解世界飲食文化演變與香料貿易史",
+            "介紹企業併購與資本市場運作的專業書",
+            "想看關於親子溝通與青春期叛逆應對講義",
+            "適合對武術歷史與格鬥哲學感興趣的書籍",
+            "推薦探討極限氣候對全球糧食安全的影響",
+            "想了解古羅馬帝國興衰與法治體系建立",
+            "介紹甜點製作分子料理與口感科學分析",
+            "想看關於宇宙黑洞與相對論概念普及書",
+            "適合學習組織行為學與企業文化塑型的書",
+            "推薦關於自媒體影音企劃與 YouTube 營運",
+            "想了解日本妖怪文化與怪談文學演變",
+            "介紹字型美學與微觀排版印刷技術",
+            "想看關於深度學習與神經網路演算法的書",
+            "適合對世界名建築師（如安藤忠雄）傳記",
+            "推薦探討精神分析學派 Freud 與 Jung 的書",
+            "想了解大航海時代與地理大發現歷史",
+            "介紹精油抓周與心靈芳療應用入門",
+            "想看關於極簡穿搭與個人風格形塑的書",
+            "適合想了解群眾心理學與烏合之眾現象",
+            "推薦關於全球化浪潮下的反思與在地化",
+            "想了解古文明失落遺跡與考古學發現",
+            "介紹字體設計師的靈感來源與手繪稿",
+            "想看關於神經語言程式學 (NLP) 應用",
+            "適合對西洋喜劇史與幽默心理學有興趣的書",
+            "推薦探討未來工作形態與遠距工作趨勢",
+            "想了解茶藝哲學與泡茶工藝的細節",
+            "介紹機器學習與巨量資料分析實務",
+            "想看關於批判性閱讀與資訊識讀能力的書",
+            "適合對古今中外戰術與孫子兵法註解感興趣",
+            "推薦探討心流體驗 (Flow) 與高效工作狀態",
+            "想了解歐洲文藝復興時期藝術與科學融合",
+            "介紹插畫創作與數位繪圖板繪繪畫技巧",
+            "想看關於當代哲學家對科技生活的反思",
+            "適合學習聲音設計與配樂創作的入門書",
+            "推薦探討人類學田野調查與異文化理解",
+            "想了解絲綢之路的貿易交流與文化碰撞",
+            "介紹個人知識管理與 Obsidian 筆記系統"
+        ];
+
+        $(document.documentElement).ready(function() {
+            const API_URL = "https://artapi.zeabur.app/lb/api/search";
+            const MAX_CHAR_LIMIT = 50;
+
+            const $scenarioInput = $('#scenario-input');
+            const $charCounter = $('#char-counter');
+            const $btnAiSearch = $('#btn-ai-search');
+            const $btnRefreshScenarios = $('#btn-refresh-scenarios');
+            const $scenarioTagsContainer = $('#scenario-tags-container');
+            const $loadingContainer = $('#loading-container');
+            const $booksGrid = $('#books-grid');
+            const $resultsHeader = $('#results-header');
+            const $resultsCount = $('#results-count');
+            const $errorAlert = $('#error-alert');
+            const $errorText = $('#error-text');
+
+            function renderRandomScenarios() {
+                // Shuffle array copy and pick top 6
+                const shuffled = [...SCENARIO_DATABASE].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, 6);
+
+                $scenarioTagsContainer.empty();
+                selected.forEach(scenario => {
+                    const $tag = $('<span>')
+                        .addClass('scenario-tag')
+                        .text(scenario)
+                        .attr('title', '點擊將此情境填入輸入框');
+                    $scenarioTagsContainer.append($tag);
+                });
             }
+
+            function updateCharCount() {
+                let text = $scenarioInput.val();
+                if (text.length > MAX_CHAR_LIMIT) {
+                    text = text.substring(0, MAX_CHAR_LIMIT);
+                    $scenarioInput.val(text);
+                }
+                const length = text.length;
+                $charCounter.text(`${length}/${MAX_CHAR_LIMIT}`);
+
+                if (length >= MAX_CHAR_LIMIT) {
+                    $charCounter.removeClass('limit-near').addClass('limit-reached');
+                } else if (length >= 40) {
+                    $charCounter.removeClass('limit-reached').addClass('limit-near');
+                } else {
+                    $charCounter.removeClass('limit-near limit-reached');
+                }
+            }
+
+            $scenarioInput.on('input keyup paste', updateCharCount);
+
+            // Click on scenario tag to fill input
+            $scenarioTagsContainer.on('click', '.scenario-tag', function() {
+                const text = $(this).text().trim();
+                $scenarioInput.val(text);
+                updateCharCount();
+                $scenarioInput.focus();
+            });
+
+            // Click refresh button to get new 6 scenarios
+            $btnRefreshScenarios.on('click', function() {
+                renderRandomScenarios();
+            });
+
+            // Handle enter key press in input
+            $scenarioInput.on('keypress', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    triggerSearch();
+                }
+            });
+
+            $btnAiSearch.on('click', function() {
+                triggerSearch();
+            });
+
+            function triggerSearch() {
+                const queryText = $scenarioInput.val().trim();
+
+                // Validation
+                if (!queryText) {
+                    showError("請先輸入您的尋書情境或點擊範例標籤！");
+                    return;
+                }
+
+                if (queryText.length > MAX_CHAR_LIMIT) {
+                    showError("情境內容不得超過 50 字！");
+                    return;
+                }
+
+                hideError();
+                setLoadingState(true);
+
+                // Send POST Request to API
+                $.ajax({
+                    url: API_URL,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify({ query: queryText }),
+                    timeout: 20000, // 20s timeout
+                    success: function(response) {
+                        setLoadingState(false);
+                        if (response && Array.isArray(response.results)) {
+                            renderBookCards(response.results);
+                        } else {
+                            showError("伺服器回傳格式不符，請稍後再試。");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        setLoadingState(false);
+                        let errMsg = "搜尋失敗，請稍後再試。";
+
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errMsg = xhr.responseJSON.message;
+                        } else if (status === 'timeout') {
+                            errMsg = "連線逾時，伺服器忙碌中，請重新嘗試。";
+                        } else if (xhr.status === 429) {
+                            errMsg = "請求太頻繁，請稍後再試（限制 5次/分鐘）。";
+                        } else if (xhr.status === 413) {
+                            errMsg = "請求內容超出字數限制！";
+                        }
+
+                        showError(errMsg);
+                    }
+                });
+            }
+
+            function setLoadingState(isLoading) {
+                if (isLoading) {
+                    $btnAiSearch.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 搜尋中...');
+                    $loadingContainer.show();
+                    $booksGrid.hide();
+                    $resultsHeader.hide();
+                } else {
+                    $btnAiSearch.prop('disabled', false).html('<i class="fa-solid fa-magnifying-glass"></i> AI 找書');
+                    $loadingContainer.hide();
+                }
+            }
+
+            function showError(message) {
+                $errorText.text(message);
+                $errorAlert.css('display', 'flex').hide().fadeIn(300);
+            }
+
+            function hideError() {
+                $errorAlert.hide();
+            }
+
+            function renderBookCards(books) {
+                $booksGrid.empty().show();
+
+                if (books.length === 0) {
+                    $resultsHeader.hide();
+                    $booksGrid.html(`
+                        <div class="empty-state">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <h3>未找到符合的藏書</h3>
+                            <p>試試看換個情境描述或關鍵字再搜尋一次吧！</p>
+                        </div>
+                    `);
+                    return;
+                }
+
+                $resultsCount.text(`${books.length} 筆藏書`);
+                $resultsHeader.css('display', 'flex');
+
+                books.forEach(book => {
+                    // Safe string parsing for missing properties
+                    const title = book.title || "未提供題名";
+                    const authors = book.authors || "未提供作者資訊";
+                    const isbn = book.isbn || "無 ISBN 資訊";
+                    const summary = book.summary || "暫無圖書摘要說明。";
+                    const bookId = book.id || "";
+                    const score = book.score ? `相似度: ${(book.score * 100).toFixed(0)}%` : "";
+
+                    // Target detail URL format required: https://lb30.libraryandbook.net/Book_detial/{book_id}
+                    const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${encodeURIComponent(bookId)}`;
+
+                    const cardHtml = `
+                        <div class="book-card">
+                            <div class="book-card-header">
+                                ${score ? `<span class="book-score"><i class="fa-solid fa-fire"></i> ${score}</span>` : ''}
+                                <div class="book-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                            </div>
+                            <div class="book-card-body">
+                                <div class="book-meta">
+                                    <i class="fa-solid fa-user-pen"></i>
+                                    <div><span class="book-meta-label">作者：</span>${escapeHtml(authors)}</div>
+                                </div>
+                                <div class="book-meta">
+                                    <i class="fa-solid fa-barcode"></i>
+                                    <div><span class="book-meta-label">ISBN：</span>${escapeHtml(isbn)}</div>
+                                </div>
+                                <div class="book-summary-box">
+                                    <strong><i class="fa-solid fa-align-left"></i> 摘要簡介：</strong><br>
+                                    ${escapeHtml(summary)}
+                                </div>
+                            </div>
+                            <div class="book-card-footer">
+                                <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="btn-detail">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> 檢視詳細館藏
+                                </a>
+                            </div>
+                        </div>
+                    `;
+
+                    $booksGrid.append(cardHtml);
+                });
+
+                // Smooth scroll down to results section
+                $('html, body').animate({
+                    scrollTop: $resultsHeader.offset().top - 80
+                }, 500);
+            }
+
+            function escapeHtml(str) {
+                return String(str || '')
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Initialize Page State
+            renderRandomScenarios();
+            updateCharCount();
         });
-    }
-
-    /*
-     * 事件
-     */
-    $("#query").on("input", function () {
-
-        var value = $(this).val();
-
-        if (value.length > 50) {
-            $(this).val(value.substring(0, 50));
-        }
-
-        updateCounter();
-    });
-
-    $("#randomBtn").on("click", function () {
-        renderExamples();
-    });
-
-    $("#searchBtn").on("click", function () {
-        searchBooks();
-    });
-
-    $("#query").on("keydown", function (e) {
-
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            searchBooks();
-        }
-    });
-
-    /*
-     * 初始載入
-     */
-    renderExamples();
-    updateCounter();
-
-});
-</script>
-
+    </script>
 </body>
 </html>
