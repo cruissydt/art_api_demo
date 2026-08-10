@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 找書</title>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            "Noto Sans TC",
+            "Microsoft JhengHei",
+            sans-serif;
+        color: #263238;
+        background: #f4f8f8;
+        line-height: 1.7;
+    }
+
+    .container {
+        width: min(1100px, calc(100% - 40px));
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .hero {
+        padding: 60px 0 40px;
+        text-align: center;
+    }
+
+    .hero-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e1f3f1;
+        color: #168b84;
+        font-size: 30px;
+    }
+
+    .hero h1 {
+        margin: 0 0 10px;
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: .02em;
+        color: #183c3a;
+    }
+
+    .hero p {
+        margin: 0;
+        color: #687878;
+        font-size: 16px;
+    }
+
+    /* Search */
+    .search-box {
+        background: #fff;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 8px 30px rgba(31, 72, 70, .08);
+        border: 1px solid #e2eeee;
+    }
+
+    .input-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .input-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #294746;
+    }
+
+    .counter {
+        color: #849494;
+        font-size: 14px;
+    }
+
+    .counter.warning {
+        color: #d77b37;
+    }
+
+    #query {
+        width: 100%;
+        min-height: 100px;
+        resize: vertical;
+        border: 1px solid #cbdcdb;
+        border-radius: 12px;
+        padding: 15px 16px;
+        font: inherit;
+        font-size: 16px;
+        color: #263b3a;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    #query:focus {
+        border-color: #2ca69e;
+        box-shadow: 0 0 0 4px rgba(44, 166, 158, .12);
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 20px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .btn:disabled {
+        cursor: not-allowed;
+        opacity: .55;
+    }
+
+    .btn-random {
+        background: #eef5f4;
+        color: #37706d;
+    }
+
+    .btn-random:hover:not(:disabled) {
+        background: #e0eeec;
+    }
+
+    .btn-search {
+        min-width: 130px;
+        background: #168f87;
+        color: #fff;
+    }
+
+    .btn-search:hover:not(:disabled) {
+        background: #117a74;
+    }
+
+    /* Examples */
+    .examples {
+        margin-top: 22px;
+    }
+
+    .examples-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .examples-title strong {
+        font-size: 15px;
+        color: #526967;
+    }
+
+    .example-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .example-item {
+        padding: 11px 13px;
+        border-radius: 10px;
+        background: #f5f9f8;
+        border: 1px solid #e1ebea;
+        color: #49615f;
+        font-size: 14px;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .example-item:hover {
+        background: #e6f4f2;
+        border-color: #b9ddda;
+        color: #167d77;
+    }
+
+    /* Loading */
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 40px 0 20px;
+    }
+
+    .spinner {
+        width: 38px;
+        height: 38px;
+        margin: 0 auto 12px;
+        border: 4px solid #dcebea;
+        border-top-color: #168f87;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loading-text {
+        color: #6d7f7d;
+        font-size: 14px;
+    }
+
+    /* Results */
+    .results-section {
+        margin: 42px 0 60px;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 18px;
+    }
+
+    .results-header h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #254543;
+    }
+
+    .result-count {
+        color: #82918f;
+        font-size: 14px;
+    }
+
+    .book-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .book-card {
+        background: #fff;
+        border: 1px solid #e1eceb;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 5px 20px rgba(30, 70, 68, .05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .book-title {
+        margin: 0 0 14px;
+        font-size: 19px;
+        line-height: 1.5;
+        color: #1f4643;
+    }
+
+    .book-meta {
+        margin-bottom: 12px;
+        color: #637572;
+        font-size: 14px;
+    }
+
+    .book-meta div {
+        margin-bottom: 4px;
+    }
+
+    .meta-label {
+        display: inline-block;
+        width: 48px;
+        color: #849491;
+    }
+
+    .book-summary {
+        margin: 8px 0 18px;
+        color: #536562;
+        font-size: 14px;
+        flex: 1;
+    }
+
+    .book-link {
+        display: inline-block;
+        align-self: flex-start;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: #edf7f5;
+        color: #157c76;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .book-link:hover {
+        background: #dcefeb;
+    }
+
+    /* Message */
+    .message {
+        display: none;
+        margin-top: 25px;
+        padding: 15px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .message.error {
+        background: #fff1ef;
+        color: #b64b3f;
+        border: 1px solid #f2d0cb;
+    }
+
+    .empty {
+        text-align: center;
+        padding: 45px 20px;
+        color: #899694;
+        background: #fff;
+        border-radius: 15px;
+        border: 1px solid #e5eeee;
+    }
+
+    /* Footer */
+    footer {
+        text-align: center;
+        padding: 25px 0 40px;
+        color: #91a09e;
+        font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+        .container {
+            width: min(100% - 24px, 600px);
+        }
+
+        .hero {
+            padding: 40px 0 28px;
+        }
+
+        .hero h1 {
+            font-size: 30px;
+        }
+
+        .search-box {
+            padding: 20px;
+        }
+
+        .example-list,
+        .book-list {
+            grid-template-columns: 1fr;
+        }
+
+        .actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<header class="hero">
+    <div class="hero-icon">📚</div>
+    <h1>AI 找書</h1>
+    <p>用自然語言描述你想找的書，讓 AI 幫你找到適合的館藏。</p>
+</header>
+
+<main>
+
+    <section class="search-box">
+
+        <div class="input-header">
+            <div class="input-title">你想找什麼書？</div>
+            <div class="counter">
+                <span id="charCount">0</span> / 50
+            </div>
+        </div>
+
+        <textarea
+            id="query"
+            maxlength="50"
+            placeholder="例如：我想找適合國中生閱讀的科學書籍"
+        ></textarea>
+
+        <div class="actions">
+            <button type="button" class="btn btn-random" id="randomBtn">
+                🔄 換一組
+            </button>
+
+            <button type="button" class="btn btn-search" id="searchBtn">
+                AI 找書
+            </button>
+        </div>
+
+        <div class="examples">
+            <div class="examples-title">
+                <strong>不知道怎麼描述？試試看：</strong>
+            </div>
+
+            <div class="example-list" id="exampleList"></div>
+        </div>
+
+        <div class="message error" id="errorMessage"></div>
+
+    </section>
+
+    <section class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">AI 正在為你尋找適合的書籍…</div>
+    </section>
+
+    <section class="results-section" id="resultsSection" style="display:none;">
+
+        <div class="results-header">
+            <h2>推薦書籍</h2>
+            <span class="result-count" id="resultCount"></span>
+        </div>
+
+        <div class="book-list" id="bookList"></div>
+
+    </section>
+
+</main>
+
+<footer>
+    AI 找書
+</footer>
+```
+
+</div>
+
+<script>
+$(function () {
+
+    var API_URL = "https://artapi.zeabur.app/koha_crm/api/search";
+
+    /*
+     * 200 筆情境範例
+     */
+    var examples = [
+        "適合國中生閱讀的科學書",
+        "想找人工智慧入門的書",
+        "適合親子一起閱讀的繪本",
+        "介紹台灣歷史的書籍",
+        "關於心理學入門的書",
+        "想學習投資理財",
+        "適合小學生看的自然科普",
+        "介紹世界各國文化的書",
+        "關於時間管理的方法",
+        "適合退休人士閱讀的書",
+        "想了解宇宙與太空",
+        "關於環境保護的書",
+        "適合青少年閱讀的小說",
+        "想找經典文學作品",
+        "關於健康生活的書",
+        "學習程式設計的入門書",
+        "想了解區塊鏈技術",
+        "介紹攝影技巧的書",
+        "關於旅行與自助旅行",
+        "適合初學者的英文學習書",
+        "想學習日文",
+        "關於中國歷史的書",
+        "介紹台灣原住民族文化",
+        "想了解第二次世界大戰",
+        "關於藝術欣賞的書",
+        "適合喜歡推理小說的人",
+        "關於職場溝通的書",
+        "想提升寫作能力",
+        "關於領導與管理",
+        "適合創業者閱讀的書",
+        "想了解經濟學",
+        "關於哲學思考的書",
+        "適合高中生閱讀的歷史書",
+        "想找有趣的數學書",
+        "關於生物學的科普書",
+        "介紹人體構造的書",
+        "關於海洋生態的書",
+        "想了解氣候變遷",
+        "關於永續發展的書",
+        "適合兒童閱讀的故事書",
+        "想找溫馨感人的小說",
+        "關於友情的小說",
+        "適合睡前閱讀的故事",
+        "想找幽默有趣的書",
+        "關於家庭關係的書",
+        "想了解親職教育",
+        "適合老師閱讀的教育書籍",
+        "關於特殊教育的書",
+        "想了解學習方法",
+        "如何提升記憶力",
+        "關於閱讀技巧的書",
+        "想找圖書館相關書籍",
+        "關於資訊素養的書",
+        "想了解媒體識讀",
+        "關於網路安全的書",
+        "適合初學者的電腦書",
+        "想學網頁設計",
+        "關於 UX 設計的書",
+        "想學 UI 設計",
+        "介紹平面設計的書",
+        "關於使用者體驗的書",
+        "想學 CSS",
+        "想學 JavaScript",
+        "適合程式設計初學者",
+        "關於資料科學的書",
+        "想了解大數據",
+        "關於機器學習的入門書",
+        "想了解深度學習",
+        "關於自然語言處理的書",
+        "想了解生成式 AI",
+        "關於機器人的書",
+        "介紹科技發展的書",
+        "想了解未來科技",
+        "關於網路發展歷史",
+        "想找科幻小說",
+        "關於未來世界的小說",
+        "適合喜歡冒險故事的人",
+        "想找奇幻小說",
+        "關於魔法世界的小說",
+        "適合喜歡歷史小說的人",
+        "想找日本文學",
+        "想找美國文學",
+        "想找歐洲文學",
+        "關於現代文學的書",
+        "想找短篇小說",
+        "適合初學者的詩集",
+        "關於散文寫作的書",
+        "想提升閱讀理解能力",
+        "適合國小高年級的讀物",
+        "適合國小低年級的繪本",
+        "適合幼兒閱讀的書",
+        "關於兒童心理的書",
+        "想找親子共讀書籍",
+        "適合家庭一起閱讀",
+        "關於兒童教育的書",
+        "想了解兒童成長",
+        "關於青少年心理的書",
+        "適合高中生的課外讀物",
+        "想找大學生推薦書",
+        "關於大學生活的書",
+        "適合研究生閱讀的書",
+        "想找學術研究方法",
+        "關於論文寫作的書",
+        "想學習資料分析",
+        "關於統計學入門",
+        "想了解商業管理",
+        "關於行銷的書",
+        "想學數位行銷",
+        "關於品牌經營的書",
+        "想了解社群媒體行銷",
+        "關於消費者行為的書",
+        "想學習簡報技巧",
+        "關於溝通表達的書",
+        "想提升口才",
+        "關於人際關係的書",
+        "想了解情緒管理",
+        "關於壓力管理的書",
+        "想提升自我管理能力",
+        "關於人生規劃的書",
+        "想找勵志書籍",
+        "關於個人成長的書",
+        "想培養好習慣",
+        "關於職涯規劃的書",
+        "想了解職場文化",
+        "關於工作效率的書",
+        "想學習專案管理",
+        "關於企業管理的書",
+        "想了解組織行為",
+        "關於人力資源管理",
+        "想了解金融市場",
+        "關於股票投資的書",
+        "想學基金投資",
+        "關於個人理財的書",
+        "想了解保險",
+        "關於退休規劃的書",
+        "想了解房地產投資",
+        "關於會計入門的書",
+        "想了解稅務相關知識",
+        "關於法律常識的書",
+        "想了解智慧財產權",
+        "關於著作權的書",
+        "想了解網路法律",
+        "關於犯罪心理學的書",
+        "想了解社會學",
+        "關於人類學的書",
+        "想了解政治學",
+        "關於國際關係的書",
+        "想了解世界局勢",
+        "關於地理的書",
+        "想認識世界各地",
+        "介紹台灣地理的書",
+        "關於台灣文化的書",
+        "介紹台灣民俗的書",
+        "關於台灣文學的書",
+        "想找台灣作家的作品",
+        "介紹台灣自然景觀",
+        "關於台灣生態的書",
+        "想了解台灣歷史人物",
+        "關於中國古代史",
+        "介紹世界文明史",
+        "關於古埃及文明",
+        "想了解希臘羅馬文明",
+        "關於考古學的書",
+        "想了解宗教文化",
+        "關於神話故事的書",
+        "介紹世界各地傳說",
+        "關於民間故事的書",
+        "想找經典童話",
+        "適合兒童的歷史故事",
+        "適合兒童的科學故事",
+        "適合兒童的冒險故事",
+        "想找有教育意義的繪本",
+        "關於品格教育的繪本",
+        "適合學習同理心的故事",
+        "關於生命教育的書",
+        "想了解環境教育",
+        "適合教師教學使用的書",
+        "關於閱讀教育的書",
+        "想了解圖書館學",
+        "關於資訊管理的書",
+        "想了解檔案管理",
+        "關於數位圖書館的書",
+        "想了解知識管理",
+        "關於人工智慧與圖書館",
+        "想找推薦閱讀相關書籍",
+        "關於閱讀推廣的書",
+        "想找適合圖書館活動的書",
+        "關於書籍設計的書",
+        "想了解出版產業",
+        "關於編輯工作的書",
+        "想了解寫作出版",
+        "想找適合假日閱讀的書",
+        "適合搭車閱讀的書",
+        "想找輕鬆好看的小說",
+        "適合喜歡動物的人",
+        "關於狗狗的書",
+        "關於貓咪的書",
+        "關於鳥類的書",
+        "關於昆蟲的書",
+        "關於植物的書",
+        "想學園藝",
+        "關於料理的書",
+        "想學烘焙",
+        "關於咖啡的書",
+        "想了解葡萄酒文化",
+        "關於旅行攝影的書",
+        "想學繪畫",
+        "關於水彩畫的書",
+        "想學書法",
+        "關於音樂欣賞的書",
+        "想了解電影藝術",
+        "關於戲劇的書",
+        "想了解建築設計",
+        "關於室內設計的書",
+        "想學服裝設計",
+        "關於工藝美術的書",
+        "想找適合銀髮族的閱讀書籍"
+    ];
+
+    /*
+     * 取得 6 個不重複的隨機情境
+     */
+    function getRandomExamples() {
+
+        var shuffled = examples.slice();
+
+        for (var i = shuffled.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = temp;
+        }
+
+        return shuffled.slice(0, 6);
+    }
+
+    /*
+     * 顯示情境
+     */
+    function renderExamples() {
+
+        var list = getRandomExamples();
+
+        $("#exampleList").empty();
+
+        $.each(list, function (index, text) {
+
+            var item = $("<div>")
+                .addClass("example-item")
+                .text(text)
+                .attr("role", "button")
+                .attr("tabindex", "0");
+
+            item.on("click", function () {
+                $("#query").val(text).trigger("input").focus();
+            });
+
+            item.on("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    $("#query").val(text).trigger("input").focus();
+                }
+            });
+
+            $("#exampleList").append(item);
+        });
+    }
+
+    /*
+     * 更新字數
+     */
+    function updateCounter() {
+
+        var length = $("#query").val().length;
+
+        $("#charCount").text(length);
+
+        if (length >= 45) {
+            $(".counter").addClass("warning");
+        } else {
+            $(".counter").removeClass("warning");
+        }
+    }
+
+    /*
+     * 顯示錯誤
+     */
+    function showError(message) {
+
+        $("#errorMessage")
+            .text(message)
+            .stop(true, true)
+            .fadeIn(200);
+    }
+
+    /*
+     * 清除錯誤
+     */
+    function hideError() {
+        $("#errorMessage").hide().text("");
+    }
+
+    /*
+     * Loading
+     */
+    function setLoading(isLoading) {
+
+        if (isLoading) {
+
+            $("#loading").stop(true, true).fadeIn(150);
+
+            $("#searchBtn")
+                .prop("disabled", true)
+                .text("搜尋中…");
+
+            $("#randomBtn").prop("disabled", true);
+
+        } else {
+
+            $("#loading").stop(true, true).fadeOut(150);
+
+            $("#searchBtn")
+                .prop("disabled", false)
+                .text("AI 找書");
+
+            $("#randomBtn").prop("disabled", false);
+        }
+    }
+
+    /*
+     * 顯示搜尋結果
+     */
+    function renderResults(results) {
+
+        $("#bookList").empty();
+
+        if (!results || results.length === 0) {
+
+            $("#resultCount").text("");
+
+            $("#bookList").html(
+                '<div class="empty">目前沒有找到符合條件的書籍。</div>'
+            );
+
+            $("#resultsSection").fadeIn(200);
+
+            return;
+        }
+
+        $("#resultCount").text("找到 " + results.length + " 本");
+
+        $.each(results, function (index, book) {
+
+            var title = book.title || "未提供書名";
+            var authors = book.authors || "未提供作者";
+            var isbn = book.isbn || "未提供 ISBN";
+            var summary = book.summary || "暫無摘要";
+            var bookId = book.id || "";
+
+            var detailUrl =
+                "https://lb30.libraryandbook.net/Book_detial/" +
+                encodeURIComponent(bookId);
+
+            var card = $("<article>").addClass("book-card");
+
+            $("<h3>")
+                .addClass("book-title")
+                .text(title)
+                .appendTo(card);
+
+            var meta = $("<div>")
+                .addClass("book-meta");
+
+            $("<div>")
+                .html(
+                    '<span class="meta-label">作者</span>' +
+                    $('<span>').text(authors).prop("outerHTML")
+                )
+                .appendTo(meta);
+
+            $("<div>")
+                .html(
+                    '<span class="meta-label">ISBN</span>' +
+                    $('<span>').text(isbn).prop("outerHTML")
+                )
+                .appendTo(meta);
+
+            meta.appendTo(card);
+
+            $("<div>")
+                .addClass("book-summary")
+                .text(summary)
+                .appendTo(card);
+
+            $("<a>")
+                .addClass("book-link")
+                .attr("href", detailUrl)
+                .attr("target", "_blank")
+                .attr("rel", "noopener noreferrer")
+                .text("檢視詳細館藏 →")
+                .appendTo(card);
+
+            $("#bookList").append(card);
+        });
+
+        $("#resultsSection").fadeIn(200);
+    }
+
+    /*
+     * 執行搜尋
+     */
+    function searchBooks() {
+
+        hideError();
+
+        var query = $("#query").val().trim();
+
+        if (!query) {
+            showError("請先輸入你想找的書籍內容。");
+            $("#query").focus();
+            return;
+        }
+
+        if (query.length > 50) {
+            showError("搜尋內容不能超過 50 個字。");
+            $("#query").focus();
+            return;
+        }
+
+        setLoading(true);
+
+        $.ajax({
+            url: API_URL,
+            method: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({
+                query: query
+            }),
+
+            success: function (response) {
+
+                if (response && response.results) {
+                    renderResults(response.results);
+                } else {
+                    renderResults([]);
+                }
+            },
+
+            error: function (xhr) {
+
+                var message = "搜尋失敗，請稍後再試。";
+
+                if (xhr.responseJSON) {
+
+                    if (xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    } else if (xhr.responseJSON.error) {
+                        message = xhr.responseJSON.error;
+                    }
+                }
+
+                if (xhr.status === 429) {
+                    message = "搜尋次數過於頻繁，請稍後再試。";
+                }
+
+                if (xhr.status === 413) {
+                    message = "搜尋內容不能超過 50 個字。";
+                }
+
+                showError(message);
+            },
+
+            complete: function () {
+                setLoading(false);
+            }
+        });
+    }
+
+    /*
+     * 事件
+     */
+    $("#query").on("input", function () {
+
+        var value = $(this).val();
+
+        if (value.length > 50) {
+            $(this).val(value.substring(0, 50));
+        }
+
+        updateCounter();
+    });
+
+    $("#randomBtn").on("click", function () {
+        renderExamples();
+    });
+
+    $("#searchBtn").on("click", function () {
+        searchBooks();
+    });
+
+    $("#query").on("keydown", function (e) {
+
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+            searchBooks();
+        }
+    });
+
+    /*
+     * 初始載入
+     */
+    renderExamples();
+    updateCounter();
+
+});
+</script>
+
+</body>
+</html>
