@@ -194,13 +194,6 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-        }
-
-        .book-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
         .book-title {
@@ -269,26 +262,31 @@
         }
 
         /* ====== 新增：回饋功能的 CSS ====== */
+        /* ====== 新增：回饋功能的 CSS ====== */
         .feedback-section {
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px dashed var(--border-color);
         }
 
         .feedback-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            justify-content: flex-start;
+            /* 讓按鈕靠左排列，不強制拉伸填滿 */
         }
 
         .feedback-btn {
-            flex: 1;
-            padding: 5px 10px;
+            /* 移除了 flex: 1 */
+            padding: 4px 12px;
+            /* 縮小內距 */
             border: 1px solid var(--border-color);
             background: #fff;
             border-radius: 6px;
             cursor: pointer;
             transition: 0.2s;
-            font-size: 14px;
+            font-size: 13px;
+            /* 縮小字體 */
         }
 
         .feedback-btn:hover {
@@ -307,28 +305,41 @@
 
         .dislike-form {
             display: none;
-            margin-top: 10px;
-            font-size: 14px;
+            margin-top: 8px;
+            font-size: 13px;
+            /* 縮小表單字體 */
             background: #F9FAFB;
-            padding: 10px;
+            padding: 10px 12px;
+            /* 縮小表單內距 */
             border-radius: 6px;
+        }
+
+        /* 針對表單內的標題稍微調整 */
+        .dislike-form p {
+            margin: 0 0 8px 0;
+            font-weight: bold;
+            font-size: 13px;
         }
 
         .dislike-form label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            /* 縮小選項間距 */
             cursor: pointer;
+            color: var(--text-main);
         }
 
         .other-input {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
+            padding: 6px 8px;
+            /* 縮小輸入框高度 */
+            margin-top: 4px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             box-sizing: border-box;
             display: none;
             outline: none;
+            font-size: 13px;
         }
 
         .other-input:focus {
@@ -336,14 +347,16 @@
         }
 
         .submit-dislike-btn {
-            margin-top: 10px;
-            width: 100%;
-            padding: 8px;
+            margin-top: 8px;
+            padding: 6px 12px;
+            /* 縮小送出按鈕 */
             background: var(--text-muted);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 13px;
+            /* 移除了 width: 100%，讓按鈕只佔需要的寬度 */
         }
 
         .submit-dislike-btn:hover {
@@ -353,9 +366,11 @@
         .feedback-msg {
             color: #059669;
             font-weight: bold;
-            text-align: center;
-            font-size: 14px;
+            text-align: left;
+            /* 改為靠左對齊，視覺更低調 */
+            font-size: 13px;
             display: none;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -605,7 +620,7 @@
             }
 
             function renderExamples() {
-                const selected = getRandomExamples(6);
+                const selected = getRandomExamples(8);
                 const container = $('#tagsContainer');
                 container.empty();
                 selected.forEach(text => {
@@ -694,7 +709,7 @@
                         </div>
                         
                         <div class="dislike-form">
-                            <p style="margin: 0 0 8px 0; font-weight: bold;">請告訴我們原因：</p>
+                            <p>請告訴我們原因：</p>
                             <label><input type="radio" name="reason-${bookId}" value="不符合情境" class="reason-radio"> 不符合情境</label>
                             <label><input type="radio" name="reason-${bookId}" value="與書單資訊不符" class="reason-radio"> 與書單資訊不符</label>
                             <label><input type="radio" name="reason-${bookId}" value="用錯語言" class="reason-radio"> 用錯語言</label>
