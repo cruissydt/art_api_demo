@@ -496,10 +496,10 @@
                 $('#searchBtn').prop('disabled', true).text('搜尋中...');
 
                 $.ajax({
-                    url: 'https://artapi.zeabur.app/lb/api/search', //[cite: 1]
-                    method: 'POST', //[cite: 1]
-                    contentType: 'application/json', //[cite: 1]
-                    data: JSON.stringify({ query: query }), //[cite: 1]
+                    url: 'https://artapi.zeabur.app/lb/api/search',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ query: query }),
                     success: function (response) {
                         $('#loadingBox').hide();
                         $('#searchBtn').prop('disabled', false).text('AI 找書');
@@ -518,22 +518,22 @@
             // ====== 修改：渲染書籍卡片，加入回饋區塊與 data 屬性 ======
             function renderResults(results, currentQuery) {
                 if (!results || results.length === 0) {
-                    $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">找不到相關書籍，請嘗試其他情境描述。</p>'); //[cite: 1]
-                    return; //[cite: 1]
+                    $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">找不到相關書籍，請嘗試其他情境描述。</p>');
+                    return;
                 }
 
-                const container = $('#resultsContainer'); //[cite: 1]
+                const container = $('#resultsContainer');
 
-                results.forEach(item => { //[cite: 1]
-                    let fullTitle = item.title || '未知書名'; //[cite: 1]
-                    if (item.other_title) fullTitle += ' ' + item.other_title; //[cite: 1]
-                    if (item.other_title_2) fullTitle += ' ' + item.other_title_2; //[cite: 1]
+                results.forEach(item => {
+                    let fullTitle = item.title || '未知書名';
+                    if (item.other_title) fullTitle += ' ' + item.other_title;
+                    if (item.other_title_2) fullTitle += ' ' + item.other_title_2;
 
-                    const authors = item.authors || '未知作者'; //[cite: 1]
-                    const isbn = item.isbn || '無 ISBN'; //[cite: 1]
-                    const summary = item.summary || '暫無摘要'; //[cite: 1]
-                    const bookId = item.id; //[cite: 1]
-                    const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`; //[cite: 1]
+                    const authors = item.authors || '未知作者';
+                    const isbn = item.isbn || '無 ISBN';
+                    const summary = item.summary || '暫無摘要';
+                    const bookId = item.id;
+                    const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`;
 
                     // 增加 data 屬性與 feedback-section
                     const cardHtml = `
@@ -544,7 +544,6 @@
                     <div class="book-summary" title="${summary}">${summary}</div>
                     <a href="${detailUrl}" target="_blank" class="book-link" style="margin-bottom: 10px;">檢視詳細館藏</a>
                     
-                    <!-- 新增回饋功能 -->
                     <div class="feedback-section">
                         <div class="feedback-buttons">
                             <button class="feedback-btn like-btn">喜歡</button>
@@ -557,7 +556,7 @@
                             <label><input type="radio" name="reason-${bookId}" value="與書單資訊不符" class="reason-radio"> 與書單資訊不符</label>
                             <label><input type="radio" name="reason-${bookId}" value="用錯語言" class="reason-radio"> 用錯語言</label>
                             <label><input type="radio" name="reason-${bookId}" value="其他" class="reason-radio"> 其他</label>
-                            <input type="text" class="other-input" placeholder="請輸入其他原因...">
+                            <input type="text" class="other-input" maxlength="30" placeholder="請輸入其他原因...(限 30 字)">
                             <button class="submit-dislike-btn">送出回饋</button>
                         </div>
                         
@@ -565,7 +564,7 @@
                     </div>
                 </div>
             `;
-                    container.append(cardHtml); //[cite: 1]
+                    container.append(cardHtml);
                 });
             }
 
@@ -573,7 +572,7 @@
             $('#queryInput').on('keypress', function (e) { if (e.which === 13) { $('#searchBtn').click(); } });
             renderExamples();
 
-            // ====== 新增：回饋事件綁定 ======
+            // ====== 回饋事件綁定 ======
 
             // 發送資料的共用函式
             function sendFeedbackToSheet(card, feedbackType, reason = "", otherReason = "") {
