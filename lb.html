@@ -7,18 +7,8 @@
     <title>AI 找書小幫手</title>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
-        :root {
-            --primary-color: #44a6af;
-            --primary-hover: #69b2b9;
-            --text-main: #1F2937;
-            --text-muted: #6B7280;
-            --card-bg: #FFFFFF;
-            --border-color: #E5E7EB;
-        }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: var(--text-main);
             line-height: 1.6;
             margin: 0;
             padding: 20px;
@@ -36,11 +26,10 @@
         }
 
         .ai_find_book_box .header p {
-            color: var(--text-muted);
+            color: #6B7280;
         }
 
         .ai_find_book_box .search-section {
-            background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
             margin-bottom: 30px;
@@ -63,15 +52,16 @@
             padding: 12px 15px;
             padding-right: 60px;
             font-size: 16px;
-            border: 2px solid var(--border-color);
+            border: 2px solid #E5E7EB;
             border-radius: 8px;
             box-sizing: border-box;
             outline: none;
             transition: border-color 0.2s;
+            height: auto;
         }
 
         .ai_find_book_box input[type="text"]:focus {
-            border-color: var(--primary-color);
+            border-color: #44a6af;
         }
 
         .ai_find_book_box .char-count {
@@ -79,12 +69,12 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-muted);
+            color: #6B7280;
             font-size: 13px;
         }
 
         .ai_find_book_box button.search-btn {
-            background-color: var(--primary-color);
+            background-color: #44a6af;
             color: white;
             border: none;
             padding: 12px 25px;
@@ -97,7 +87,7 @@
         }
 
         .ai_find_book_box button.search-btn:hover:not(:disabled) {
-            background-color: var(--primary-hover);
+            background-color: #69b2b9;
         }
 
         .ai_find_book_box button.search-btn:disabled {
@@ -111,16 +101,20 @@
             flex-wrap: wrap;
         }
 
+        .ai_find_book_box .note-container {
+            margin: 0 0 20px 0;
+        }
+
         .ai_find_book_box .note-container p {
             color: #666;
             font-size: 13px;
-            line-height: 1em;
+            line-height: 1.5em;
         }
 
         .ai_find_book_box .refresh-btn {
             background: none;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
+            border: 1px solid #44a6af;
+            color: #44a6af;
             padding: 6px 12px;
             border-radius: 20px;
             cursor: pointer;
@@ -129,7 +123,7 @@
         }
 
         .ai_find_book_box .refresh-btn:hover {
-            background: var(--primary-color);
+            background: #44a6af;
             color: white;
         }
 
@@ -159,7 +153,7 @@
             display: none;
             text-align: center;
             padding: 40px;
-            color: var(--text-muted);
+            color: #6B7280;
             font-size: 18px;
         }
 
@@ -169,7 +163,7 @@
             height: 30px;
             border: 3px solid rgba(79, 70, 229, 0.3);
             border-radius: 50%;
-            border-top-color: var(--primary-color);
+            border-top-color: #44a6af;
             animation: spin 1s ease-in-out infinite;
             margin-right: 10px;
             vertical-align: middle;
@@ -188,8 +182,7 @@
         }
 
         .ai_find_book_box .book-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid #E5E7EB;
             border-radius: 10px;
             padding: 20px;
             display: flex;
@@ -199,20 +192,19 @@
         .ai_find_book_box .book-title {
             font-size: 18px;
             font-weight: bold;
-            color: var(--primary-color);
+            color: #44a6af;
             margin: 0 0 10px 0;
             line-height: 1.4;
         }
 
         .ai_find_book_box .book-meta {
             font-size: 14px;
-            color: var(--text-muted);
+            color: #6B7280;
             margin-bottom: 5px;
         }
 
         .ai_find_book_box .book-summary {
             font-size: 14px;
-            color: var(--text-main);
             margin: 15px 0;
             flex-grow: 1;
             display: -webkit-box;
@@ -264,7 +256,7 @@
         .ai_find_book_box .feedback-section {
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px dashed var(--border-color);
+            border-top: 1px dashed #E5E7EB;
         }
 
         .ai_find_book_box .feedback-buttons {
@@ -275,7 +267,7 @@
 
         .ai_find_book_box .feedback-btn {
             padding: 4px 12px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #E5E7EB;
             background: #fff;
             border-radius: 6px;
             cursor: pointer;
@@ -316,14 +308,18 @@
             display: block;
             margin-bottom: 4px;
             cursor: pointer;
-            color: var(--text-main);
+        }
+
+        .ai_find_book_box .dislike-form label input {
+            appearance: auto;
+            height: auto;
         }
 
         .ai_find_book_box input[type="text"].other-input {
             width: 100%;
             padding: 6px 8px;
             margin-top: 4px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #E5E7EB;
             border-radius: 4px;
             box-sizing: border-box;
             display: none;
@@ -332,22 +328,18 @@
         }
 
         .ai_find_book_box .other-input:focus {
-            border-color: var(--primary-color);
+            border-color: #44a6af;
         }
 
         .ai_find_book_box .submit-dislike-btn {
             margin-top: 8px;
             padding: 6px 12px;
-            background: var(--text-muted);
+            background: #6B7280;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 13px;
-        }
-
-        .ai_find_book_box .submit-dislike-btn:hover {
-            background: var(--text-main);
         }
 
         .ai_find_book_box .feedback-msg {
@@ -358,6 +350,7 @@
             display: none;
             margin-top: 5px;
         }
+
         /* AI找書 結束 */
     </style>
 </head>
@@ -620,7 +613,7 @@
                 const val = $('#queryInput').val();
                 const len = val.length;
                 $('#charCount').text(`${len} / 50`);
-                if (len > 50) { $('#charCount').css('color', 'red'); } else { $('#charCount').css('color', 'var(--text-muted)'); }
+                if (len > 50) { $('#charCount').css('color', 'red'); } else { $('#charCount').css('color', '#6B7280'); }
             }
 
             $('#tagsContainer').on('click', '.example-tag', function () {
@@ -663,7 +656,7 @@
 
             function renderResults(results, currentQuery) {
                 if (!results || results.length === 0) {
-                    $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">找不到相關書籍，請嘗試其他情境描述。</p>');
+                    $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: #6B7280;">找不到相關書籍，請嘗試其他情境描述。</p>');
                     return;
                 }
 
@@ -686,7 +679,7 @@
                     <div class="book-meta">👤 作者：${authors}</div>
                     <div class="book-meta">🏷️ ISBN：${isbn}</div>
                     <div class="book-summary" title="${summary}">${summary}</div>
-                    <a href="${detailUrl}" target="_blank" class="book-link" style="margin-bottom: 10px;">詳細書目</a>
+                    <a href="${detailUrl}" class="book-link" style="margin-bottom: 10px;">詳細書目</a>
                     
                     <div class="feedback-section">
                         <div class="feedback-buttons">
