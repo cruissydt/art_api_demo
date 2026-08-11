@@ -547,8 +547,8 @@
                     <!-- 新增回饋功能 -->
                     <div class="feedback-section">
                         <div class="feedback-buttons">
-                            <button class="feedback-btn like-btn">👍 讚</button>
-                            <button class="feedback-btn dislike-btn">👎 倒讚</button>
+                            <button class="feedback-btn like-btn">喜歡</button>
+                            <button class="feedback-btn dislike-btn">不喜歡</button>
                         </div>
                         
                         <div class="dislike-form">
@@ -578,33 +578,29 @@
             // 發送資料的共用函式
             function sendFeedbackToSheet(card, feedbackType, reason = "", otherReason = "") {
                 const payload = {
-                    timestamp: new Date().toLocaleString('zh-TW', { hour12: false }), // 日期時間
+                    timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
                     bookId: card.data('bookid'),
                     bookTitle: card.data('booktitle'),
-                    queryContext: card.data('query'), // 情境句子
-                    feedbackType: feedbackType,       // 讚 或 倒讚
+                    queryContext: card.data('query'),
+                    feedbackType: feedbackType,
                     reason: reason,
                     otherReason: otherReason
                 };
 
-                if (GOOGLE_SHEET_API_URL !== "在此輸入您的_GOOGLE_APPS_SCRIPT_網址") {
-                    fetch(GOOGLE_SHEET_API_URL, {
-                        method: 'POST',
-                        mode: 'no-cors', // 避免跨域阻擋 (CORS)
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    }).catch(err => console.error("傳送回饋失敗:", err));
-                } else {
-                    console.log("尚未設定 Google Sheet URL，傳送資料如下：", payload);
-                }
+                fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(err => console.error("傳送回饋失敗:", err));
             }
 
-            // 點擊「讚」
+            // 點擊「喜歡」
             $(document).on('click', '.like-btn', function () {
                 const card = $(this).closest('.book-card');
                 const section = $(this).closest('.feedback-section');
 
-                sendFeedbackToSheet(card, '讚');
+                sendFeedbackToSheet(card, '喜歡');
 
                 // 隱藏按鈕與表單，只顯示謝意
                 section.find('.feedback-buttons').hide();
@@ -612,7 +608,7 @@
                 section.find('.feedback-msg').fadeIn();
             });
 
-            // 點擊「倒讚」
+            // 點擊「不喜歡」
             $(document).on('click', '.dislike-btn', function () {
                 const section = $(this).closest('.feedback-section');
                 section.find('.feedback-buttons').hide();
@@ -629,7 +625,7 @@
                 }
             });
 
-            // 送出「倒讚」原因
+            // 送出「不喜歡」原因
             $(document).on('click', '.submit-dislike-btn', function () {
                 const card = $(this).closest('.book-card');
                 const section = $(this).closest('.feedback-section');
@@ -647,7 +643,7 @@
                     return;
                 }
 
-                sendFeedbackToSheet(card, '倒讚', selectedReason, otherReasonText);
+                sendFeedbackToSheet(card, '不喜歡', selectedReason, otherReasonText);
 
                 // 隱藏表單，顯示謝意
                 form.hide();
