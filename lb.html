@@ -111,6 +111,12 @@
             flex-wrap: wrap;
         }
 
+        .note-container p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1em;
+        }
+
         .refresh-btn {
             background: none;
             border: 1px solid var(--primary-color);
@@ -218,6 +224,7 @@
             flex-grow: 1;
             display: -webkit-box;
             -webkit-line-clamp: 4;
+            line-clamp: 4;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -275,7 +282,7 @@
 
         .feedback-btn {
             flex: 1;
-            padding: 8px;
+            padding: 5px 10px;
             border: 1px solid var(--border-color);
             background: #fff;
             border-radius: 6px;
@@ -369,14 +376,14 @@
                 <button class="search-btn" id="searchBtn">AI 找書</button>
             </div>
 
-            <div class="examples-section">
-                <button class="refresh-btn" id="refreshBtn">↻ 換一組</button>
-                <div class="tags-container" id="tagsContainer"></div>
-            </div>
-
             <div class="note-container">
                 <p>💡 保護隱私：請勿輸入個人個資、機密或敏感違規內容。</p>
                 <p>💡 容錯提醒：AI 語意理解偶有偏誤，書單資訊請以實際內容為準。</p>
+            </div>
+
+            <div class="examples-section">
+                <button class="refresh-btn" id="refreshBtn">↻ 換一組</button>
+                <div class="tags-container" id="tagsContainer"></div>
             </div>
 
         </div>
