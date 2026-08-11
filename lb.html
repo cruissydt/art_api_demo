@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <!-- 引入 jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
+        /* (保留您原本的所有 CSS) */
         :root {
             --primary-color: #4F46E5;
             --primary-hover: #4338CA;
@@ -45,7 +47,6 @@
             color: var(--text-muted);
         }
 
-        /* 搜尋區塊 */
         .search-section {
             background: var(--card-bg);
             padding: 25px;
@@ -113,7 +114,6 @@
             cursor: not-allowed;
         }
 
-        /* 範例標籤區塊 */
         .examples-section {
             display: flex;
             align-items: flex-start;
@@ -159,7 +159,6 @@
             background: #E0E7FF;
         }
 
-        /* 讀取狀態 */
         .loading-box {
             display: none;
             text-align: center;
@@ -181,13 +180,14 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        /* 書籍結果清單 */
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
             gap: 20px;
         }
 
@@ -198,13 +198,13 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
         }
 
         .book-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
         .book-title {
@@ -265,247 +265,396 @@
             .input-group {
                 flex-direction: column;
             }
+
             button.search-btn {
                 width: 100%;
             }
         }
+
+        /* ====== 新增：回饋功能的 CSS ====== */
+        .feedback-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .feedback-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .feedback-btn:hover {
+            background: #F3F4F6;
+        }
+
+        .like-btn:hover {
+            color: #059669;
+            border-color: #059669;
+        }
+
+        .dislike-btn:hover {
+            color: #DC2626;
+            border-color: #DC2626;
+        }
+
+        .dislike-form {
+            display: none;
+            margin-top: 10px;
+            font-size: 14px;
+            background: #F9FAFB;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .dislike-form label {
+            display: block;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .other-input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: none;
+            outline: none;
+        }
+
+        .other-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .submit-dislike-btn {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            background: var(--text-muted);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-dislike-btn:hover {
+            background: var(--text-main);
+        }
+
+        .feedback-msg {
+            color: #059669;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>AI 找書</h1>
-        <p>輸入您當下的情境或需求，讓 AI 幫您推薦最適合的館藏書籍</p>
-    </div>
-
-    <div class="search-section">
-        <div class="input-group">
-            <div class="input-wrapper">
-                <input type="text" id="queryInput" maxlength="50" placeholder="想找什麼書呢？(例如：適合睡前放鬆的心理學書籍)">
-                <span class="char-count" id="charCount">0 / 50</span>
-            </div>
-            <button class="search-btn" id="searchBtn">AI 找書</button>
+    <div class="container">
+        <!-- (保留原本的 HTML 結構) -->
+        <div class="header">
+            <h1>AI 找書</h1>
+            <p>輸入您當下的情境或需求，讓 AI 幫您推薦最適合的館藏書籍</p>
         </div>
-        
-        <div class="examples-section">
-            <button class="refresh-btn" id="refreshBtn">↻ 換一組</button>
-            <div class="tags-container" id="tagsContainer">
-                <!-- 標籤將由 JS 動態生成 -->
+
+        <div class="search-section">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input type="text" id="queryInput" maxlength="50" placeholder="想找什麼書呢？(例如：適合睡前放鬆的心理學書籍)">
+                    <span class="char-count" id="charCount">0 / 50</span>
+                </div>
+                <button class="search-btn" id="searchBtn">AI 找書</button>
+            </div>
+
+            <div class="examples-section">
+                <button class="refresh-btn" id="refreshBtn">↻ 換一組</button>
+                <div class="tags-container" id="tagsContainer"></div>
             </div>
         </div>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <div class="loading-box" id="loadingBox">
+            <div class="spinner"></div>正在搜尋最適合的書籍...
+        </div>
+
+        <div class="results-grid" id="resultsContainer"></div>
     </div>
 
-    <div id="errorMsg" class="error-msg"></div>
+    <script>
+        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyWiENAu6pzdw9CY61H-EGDUelPoK47z5nQkBCt-boN9a1ttgWrbMIcuCAqmy3_Sz9_/exec";
 
-    <div class="loading-box" id="loadingBox">
-        <div class="spinner"></div>正在搜尋最適合的書籍...
-    </div>
+        $(document).ready(function () {
+            const rawExamples = [
+                "想學投資理財但完全沒經驗", "如何克服失眠與焦慮", "適合週末放鬆閱讀的奇幻小說", "職場溝通與談判技巧",
+                "關於人工智慧的入門書", "歐洲歷史文化相關", "想了解台灣本土歷史", "提升時間管理的實用方法",
+                "給新手父母的育兒指南", "如何培養良好的飲食習慣", "探索宇宙與黑洞的科普", "心理學經典著作",
+                "在家也能做的徒手健身", "懸疑推理小說推薦", "幫助專注力提升的書", "學習 Python 程式設計",
+                "如何走出失戀的陰霾", "創業家傳記或故事", "學習網頁前端開發", "日本戰國時代歷史",
+                "極簡主義生活實踐", "如何學好英文會話", "咖啡烘焙與沖煮基礎", "找好看的科幻史詩",
+                "想了解區塊鏈與加密貨幣", "給青少年看的成長小說", "探討人際關係的心理學", "健康減重與營養知識",
+                "了解自我與人格特質", "日本文學經典名著", "現代詩集推薦", "想要提升寫作能力",
+                "幫助舒緩壓力的繪本", "給上班族的理財規劃", "了解氣候變遷與環保", "攝影技巧與構圖入門",
+                "有趣的動物行為科普", "關於領導力與團隊管理", "經典武俠小說", "了解經濟學基本概念",
+                "想學做家常菜的食譜書", "關於睡眠科學的研究", "如何克服拖延症", "二戰歷史回顧",
+                "想了解哲學家的思想", "室內設計與裝潢靈感", "幫助冥想與靜心的書", "探討社會階層的社會學",
+                "想要了解藝術史", "女性主義相關書籍", "想找感動人心的真實故事", "關於旅行的散文集",
+                "如何培養自信心", "認識傳染病與公共衛生", "尋找生命的意義", "兒童情緒管理繪本",
+                "植物圖鑑與照顧指南", "貓咪行為學解析", "狗狗訓練基礎", "了解神經科學的大腦奧秘",
+                "想學水彩畫的教學", "尋找寫給大人的童話", "關於生死的哲學探討", "想了解法學基本常識",
+                "如何準備公開演講", "學習日文文法與單字", "探討未來科技趨勢", "適合露營看的閒書",
+                "關於世界遺產的介紹", "想要學習行銷企劃", "了解大數據與資料分析", "如何建立個人品牌",
+                "想找爆笑輕鬆的喜劇小說", "關於登山與戶外求生", "如何面對親人離世", "探討基因工程的倫理",
+                "想了解心理治療的過程", "尋找好看的輕小說", "關於葡萄酒的品鑑入門", "學習吉他與音樂理論",
+                "想了解量子力學", "探討人類演化史", "給大學生的職涯建議", "想要學習談判籌碼",
+                "認識東西方神話故事", "關於流行音樂發展史", "尋找浪漫愛情小說", "如何提升記憶力",
+                "了解色彩學與應用", "探討高齡化社會問題", "想學習基礎會計", "關於心理戰與微表情",
+                "尋找得獎的圖畫書", "了解國際關係與地緣政治", "想要學習影片剪輯", "探討人工智慧的風險",
+                "想找燒腦的邏輯推理書", "關於台灣鐵道歷史", "學習手工皂與香氛製作", "如何克服舞台恐懼",
+                "探討消費者心理學", "想了解古代文明遺跡", "尋找關於孤獨的散文", "學習資料結構與演算法",
+                "認識常見的心理疾病", "關於品牌公關與危機處理", "探討貧富差距的問題", "想找短篇小說集",
+                "學習如何問對問題", "關於行為經濟學的有趣實驗", "想了解伊斯蘭文化", "尋找激勵人心的體育傳記",
+                "學習皮拉提斯或瑜珈", "探討媒體識讀與假新聞", "想找關於吸血鬼的奇幻書", "學習如何寫好商業企劃書",
+                "了解台灣原住民文化", "關於睡眠呼吸中止症", "探討兩性差異與溝通", "想找關於平行宇宙的科幻書",
+                "學習塔羅牌與占星學", "關於建築設計的美學", "探討動物權利與倫理", "想了解犯罪心理學",
+                "尋找適合朗讀的故事", "學習如何與主管溝通", "探討死刑存廢的爭議", "想找關於魔法學校的書",
+                "學習基礎的統計學", "關於茶文化與品茗", "探討同性婚姻與平權", "想找有聲書的原著",
+                "學習如何優雅地老去", "關於自閉症的真實故事", "探討安樂死的議題", "想找關於穿越時空的小說",
+                "學習基礎的樂理知識", "關於咖啡廳創業的經驗", "探討基因改造食品的安全", "想找關於網路霸凌的書",
+                "學習如何快速閱讀", "關於收納與斷捨離", "探討數位隱私的問題", "想找關於殭屍末日的小說",
+                "學習如何畫心智圖", "關於手工藝與DIY", "探討太空探索的未來", "想找關於超能力的科幻書",
+                "學習如何製作簡報", "關於烘焙麵包的技巧", "探討氣候變遷的解決方案", "想找關於反烏托邦的小說",
+                "學習如何理財投資", "關於種植多肉植物", "探討海洋污染的嚴重性", "想找關於尋寶的冒險小說",
+                "學習如何寫履歷表", "關於手沖咖啡的學問", "探討瀕危物種的保育", "想找關於特務的諜報小說",
+                "學習如何面試應對", "關於品酒的基礎知識", "探討再生能源的發展", "想找關於黑客的科技小說",
+                "學習如何經營自媒體", "關於調酒的酒譜大全", "探討核能發電的利弊", "想找關於外星人的科幻書",
+                "學習如何寫企劃案", "關於泡茶的藝術", "探討水資源缺乏的危機", "想找關於時光機的科幻書",
+                "學習如何做會議紀錄", "關於品嚐巧克力的技巧", "探討森林砍伐的影響", "想找關於虛擬實境的科幻書",
+                "學習如何時間管理", "關於品嚐起司的學問", "探討空氣污染的危害", "想找關於人工智慧叛變的科幻書",
+                "學習如何設定目標", "關於品嚐橄欖油的技巧", "探討塑膠污染的嚴重性", "想找關於機器人三定律的科幻書",
+                "學習如何解決問題", "關於品嚐蜂蜜的學問", "探討全球暖化的影響", "想找關於賽博龐克的科幻書"
+            ];
 
-    <div class="results-grid" id="resultsContainer">
-        <!-- 書籍卡片將由 JS 動態生成 -->
-    </div>
-</div>
-
-<script>
-$(document).ready(function() {
-    // 預設 200 筆情境範例
-    const rawExamples = [
-        "想學投資理財但完全沒經驗", "如何克服失眠與焦慮", "適合週末放鬆閱讀的奇幻小說", "職場溝通與談判技巧", 
-        "關於人工智慧的入門書", "歐洲歷史文化相關", "想了解台灣本土歷史", "提升時間管理的實用方法",
-        "給新手父母的育兒指南", "如何培養良好的飲食習慣", "探索宇宙與黑洞的科普", "心理學經典著作",
-        "在家也能做的徒手健身", "懸疑推理小說推薦", "幫助專注力提升的書", "學習 Python 程式設計",
-        "如何走出失戀的陰霾", "創業家傳記或故事", "學習網頁前端開發", "日本戰國時代歷史",
-        "極簡主義生活實踐", "如何學好英文會話", "咖啡烘焙與沖煮基礎", "找好看的科幻史詩",
-        "想了解區塊鏈與加密貨幣", "給青少年看的成長小說", "探討人際關係的心理學", "健康減重與營養知識",
-        "了解自我與人格特質", "日本文學經典名著", "現代詩集推薦", "想要提升寫作能力",
-        "幫助舒緩壓力的繪本", "給上班族的理財規劃", "了解氣候變遷與環保", "攝影技巧與構圖入門",
-        "有趣的動物行為科普", "關於領導力與團隊管理", "經典武俠小說", "了解經濟學基本概念",
-        "想學做家常菜的食譜書", "關於睡眠科學的研究", "如何克服拖延症", "二戰歷史回顧",
-        "想了解哲學家的思想", "室內設計與裝潢靈感", "幫助冥想與靜心的書", "探討社會階層的社會學",
-        "想要了解藝術史", "女性主義相關書籍", "想找感動人心的真實故事", "關於旅行的散文集",
-        "如何培養自信心", "認識傳染病與公共衛生", "尋找生命的意義", "兒童情緒管理繪本",
-        "植物圖鑑與照顧指南", "貓咪行為學解析", "狗狗訓練基礎", "了解神經科學的大腦奧秘",
-        "想學水彩畫的教學", "尋找寫給大人的童話", "關於生死的哲學探討", "想了解法學基本常識",
-        "如何準備公開演講", "學習日文文法與單字", "探討未來科技趨勢", "適合露營看的閒書",
-        "關於世界遺產的介紹", "想要學習行銷企劃", "了解大數據與資料分析", "如何建立個人品牌",
-        "想找爆笑輕鬆的喜劇小說", "關於登山與戶外求生", "如何面對親人離世", "探討基因工程的倫理",
-        "想了解心理治療的過程", "尋找好看的輕小說", "關於葡萄酒的品鑑入門", "學習吉他與音樂理論",
-        "想了解量子力學", "探討人類演化史", "給大學生的職涯建議", "想要學習談判籌碼",
-        "認識東西方神話故事", "關於流行音樂發展史", "尋找浪漫愛情小說", "如何提升記憶力",
-        "了解色彩學與應用", "探討高齡化社會問題", "想學習基礎會計", "關於心理戰與微表情",
-        "尋找得獎的圖畫書", "了解國際關係與地緣政治", "想要學習影片剪輯", "探討人工智慧的風險",
-        "想找燒腦的邏輯推理書", "關於台灣鐵道歷史", "學習手工皂與香氛製作", "如何克服舞台恐懼",
-        "探討消費者心理學", "想了解古代文明遺跡", "尋找關於孤獨的散文", "學習資料結構與演算法",
-        "認識常見的心理疾病", "關於品牌公關與危機處理", "探討貧富差距的問題", "想找短篇小說集",
-        "學習如何問對問題", "關於行為經濟學的有趣實驗", "想了解伊斯蘭文化", "尋找激勵人心的體育傳記",
-        "學習皮拉提斯或瑜珈", "探討媒體識讀與假新聞", "想找關於吸血鬼的奇幻書", "學習如何寫好商業企劃書",
-        "了解台灣原住民文化", "關於睡眠呼吸中止症", "探討兩性差異與溝通", "想找關於平行宇宙的科幻書",
-        "學習塔羅牌與占星學", "關於建築設計的美學", "探討動物權利與倫理", "想了解犯罪心理學",
-        "尋找適合朗讀的故事", "學習如何與主管溝通", "探討死刑存廢的爭議", "想找關於魔法學校的書",
-        "學習基礎的統計學", "關於茶文化與品茗", "探討同性婚姻與平權", "想找有聲書的原著",
-        "學習如何優雅地老去", "關於自閉症的真實故事", "探討安樂死的議題", "想找關於穿越時空的小說",
-        "學習基礎的樂理知識", "關於咖啡廳創業的經驗", "探討基因改造食品的安全", "想找關於網路霸凌的書",
-        "學習如何快速閱讀", "關於收納與斷捨離", "探討數位隱私的問題", "想找關於殭屍末日的小說",
-        "學習如何畫心智圖", "關於手工藝與DIY", "探討太空探索的未來", "想找關於超能力的科幻書",
-        "學習如何製作簡報", "關於烘焙麵包的技巧", "探討氣候變遷的解決方案", "想找關於反烏托邦的小說",
-        "學習如何理財投資", "關於種植多肉植物", "探討海洋污染的嚴重性", "想找關於尋寶的冒險小說",
-        "學習如何寫履歷表", "關於手沖咖啡的學問", "探討瀕危物種的保育", "想找關於特務的諜報小說",
-        "學習如何面試應對", "關於品酒的基礎知識", "探討再生能源的發展", "想找關於黑客的科技小說",
-        "學習如何經營自媒體", "關於調酒的酒譜大全", "探討核能發電的利弊", "想找關於外星人的科幻書",
-        "學習如何寫企劃案", "關於泡茶的藝術", "探討水資源缺乏的危機", "想找關於時光機的科幻書",
-        "學習如何做會議紀錄", "關於品嚐巧克力的技巧", "探討森林砍伐的影響", "想找關於虛擬實境的科幻書",
-        "學習如何時間管理", "關於品嚐起司的學問", "探討空氣污染的危害", "想找關於人工智慧叛變的科幻書",
-        "學習如何設定目標", "關於品嚐橄欖油的技巧", "探討塑膠污染的嚴重性", "想找關於機器人三定律的科幻書",
-        "學習如何解決問題", "關於品嚐蜂蜜的學問", "探討全球暖化的影響", "想找關於賽博龐克的科幻書"
-    ];
-
-    // 隨機選取指定數量的元素
-    function getRandomExamples(count) {
-        let shuffled = rawExamples.slice(0), i = rawExamples.length, min = i - count, temp, index;
-        while (i-- > min) {
-            index = Math.floor((i + 1) * Math.random());
-            temp = shuffled[index];
-            shuffled[index] = shuffled[i];
-            shuffled[i] = temp;
-        }
-        return shuffled.slice(min);
-    }
-
-    // 渲染範例標籤
-    function renderExamples() {
-        const selected = getRandomExamples(6);
-        const container = $('#tagsContainer');
-        container.empty();
-        selected.forEach(text => {
-            container.append(`<div class="example-tag">${text}</div>`);
-        });
-    }
-
-    // 更新字數統計
-    function updateCharCount() {
-        const val = $('#queryInput').val();
-        const len = val.length;
-        $('#charCount').text(`${len} / 50`);
-        if(len > 50) {
-            $('#charCount').css('color', 'red');
-        } else {
-            $('#charCount').css('color', 'var(--text-muted)');
-        }
-    }
-
-    // 點擊範例時自動填入
-    $('#tagsContainer').on('click', '.example-tag', function() {
-        $('#queryInput').val($(this).text());
-        updateCharCount();
-    });
-
-    // 換一組按鈕
-    $('#refreshBtn').on('click', function() {
-        renderExamples();
-    });
-
-    // 輸入框監聽
-    $('#queryInput').on('input', updateCharCount);
-
-    // 送出搜尋
-    $('#searchBtn').on('click', function() {
-        const query = $('#queryInput').val().trim();
-        
-        if (!query) {
-            showError('請輸入想要尋找的情境或書籍主題！');
-            return;
-        }
-
-        if (query.length > 50) {
-            showError('輸入字數不能超過 50 字！');
-            return;
-        }
-
-        // 準備狀態：關閉錯誤、清空結果、顯示 Loading、停用按鈕
-        $('#errorMsg').hide();
-        $('#resultsContainer').empty();
-        $('#loadingBox').show();
-        $('#searchBtn').prop('disabled', true).text('搜尋中...');
-
-        // 呼叫 API 
-        // 依照規定使用 POST，並以 dict(json) 格式傳送包含 "query" 的資料[cite: 1]
-        $.ajax({
-            url: 'https://artapi.zeabur.app/lb/api/search',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ query: query }),
-            success: function(response) {
-                $('#loadingBox').hide();
-                $('#searchBtn').prop('disabled', false).text('AI 找書');
-                renderResults(response.results); // 依後端定義讀取 response.results 陣列[cite: 1]
-            },
-            error: function(xhr) {
-                $('#loadingBox').hide();
-                $('#searchBtn').prop('disabled', false).text('AI 找書');
-                
-                let errorText = '系統忙碌中或發生錯誤，請稍後再試。';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorText = xhr.responseJSON.message;
+            function getRandomExamples(count) {
+                let shuffled = rawExamples.slice(0), i = rawExamples.length, min = i - count, temp, index;
+                while (i-- > min) {
+                    index = Math.floor((i + 1) * Math.random());
+                    temp = shuffled[index];
+                    shuffled[index] = shuffled[i];
+                    shuffled[i] = temp;
                 }
-                showError('錯誤：' + errorText);
+                return shuffled.slice(min);
             }
-        });
-    });
 
-    // 渲染書籍卡片結果
-    function renderResults(results) {
-        if (!results || results.length === 0) {
-            $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">找不到相關書籍，請嘗試其他情境描述。</p>');
-            return;
-        }
+            function renderExamples() {
+                const selected = getRandomExamples(6);
+                const container = $('#tagsContainer');
+                container.empty();
+                selected.forEach(text => {
+                    container.append(`<div class="example-tag">${text}</div>`);
+                });
+            }
 
-        const container = $('#resultsContainer');
-        
-        results.forEach(item => {
-            // 組合書名：依照後端設定包含 題名 + 其他題名 + 其他題名2[cite: 1]
-            let fullTitle = item.title || '未知書名';
-            if (item.other_title) fullTitle += ' ' + item.other_title;
-            if (item.other_title_2) fullTitle += ' ' + item.other_title_2;
+            function updateCharCount() {
+                const val = $('#queryInput').val();
+                const len = val.length;
+                $('#charCount').text(`${len} / 50`);
+                if (len > 50) { $('#charCount').css('color', 'red'); } else { $('#charCount').css('color', 'var(--text-muted)'); }
+            }
 
-            // 確保有預設值避免 null[cite: 1]
-            const authors = item.authors || '未知作者';
-            const isbn = item.isbn || '無 ISBN';
-            const summary = item.summary || '暫無摘要';
-            const bookId = item.id;
-            const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`;
+            $('#tagsContainer').on('click', '.example-tag', function () {
+                $('#queryInput').val($(this).text());
+                updateCharCount();
+            });
 
-            const cardHtml = `
-                <div class="book-card">
+            $('#refreshBtn').on('click', renderExamples);
+            $('#queryInput').on('input', updateCharCount);
+
+            $('#searchBtn').on('click', function () {
+                const query = $('#queryInput').val().trim();
+                if (!query) { showError('請輸入想要尋找的情境或書籍主題！'); return; }
+                if (query.length > 50) { showError('輸入字數不能超過 50 字！'); return; }
+
+                $('#errorMsg').hide();
+                $('#resultsContainer').empty();
+                $('#loadingBox').show();
+                $('#searchBtn').prop('disabled', true).text('搜尋中...');
+
+                $.ajax({
+                    url: 'https://artapi.zeabur.app/lb/api/search', //[cite: 1]
+                    method: 'POST', //[cite: 1]
+                    contentType: 'application/json', //[cite: 1]
+                    data: JSON.stringify({ query: query }), //[cite: 1]
+                    success: function (response) {
+                        $('#loadingBox').hide();
+                        $('#searchBtn').prop('disabled', false).text('AI 找書');
+                        renderResults(response.results, query); // 傳遞 query 以利記錄情境句子
+                    },
+                    error: function (xhr) {
+                        $('#loadingBox').hide();
+                        $('#searchBtn').prop('disabled', false).text('AI 找書');
+                        let errorText = '系統忙碌中或發生錯誤，請稍後再試。';
+                        if (xhr.responseJSON && xhr.responseJSON.message) errorText = xhr.responseJSON.message;
+                        showError('錯誤：' + errorText);
+                    }
+                });
+            });
+
+            // ====== 修改：渲染書籍卡片，加入回饋區塊與 data 屬性 ======
+            function renderResults(results, currentQuery) {
+                if (!results || results.length === 0) {
+                    $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">找不到相關書籍，請嘗試其他情境描述。</p>'); //[cite: 1]
+                    return; //[cite: 1]
+                }
+
+                const container = $('#resultsContainer'); //[cite: 1]
+
+                results.forEach(item => { //[cite: 1]
+                    let fullTitle = item.title || '未知書名'; //[cite: 1]
+                    if (item.other_title) fullTitle += ' ' + item.other_title; //[cite: 1]
+                    if (item.other_title_2) fullTitle += ' ' + item.other_title_2; //[cite: 1]
+
+                    const authors = item.authors || '未知作者'; //[cite: 1]
+                    const isbn = item.isbn || '無 ISBN'; //[cite: 1]
+                    const summary = item.summary || '暫無摘要'; //[cite: 1]
+                    const bookId = item.id; //[cite: 1]
+                    const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`; //[cite: 1]
+
+                    // 增加 data 屬性與 feedback-section
+                    const cardHtml = `
+                <div class="book-card" data-bookid="${bookId}" data-booktitle="${fullTitle}" data-query="${currentQuery}">
                     <h3 class="book-title">${fullTitle}</h3>
                     <div class="book-meta">👤 作者：${authors}</div>
                     <div class="book-meta">🏷️ ISBN：${isbn}</div>
                     <div class="book-summary" title="${summary}">${summary}</div>
-                    <a href="${detailUrl}" target="_blank" class="book-link">檢視詳細館藏</a>
+                    <a href="${detailUrl}" target="_blank" class="book-link" style="margin-bottom: 10px;">檢視詳細館藏</a>
+                    
+                    <!-- 新增回饋功能 -->
+                    <div class="feedback-section">
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn like-btn">👍 讚</button>
+                            <button class="feedback-btn dislike-btn">👎 倒讚</button>
+                        </div>
+                        
+                        <div class="dislike-form">
+                            <p style="margin: 0 0 8px 0; font-weight: bold;">請告訴我們原因：</p>
+                            <label><input type="radio" name="reason-${bookId}" value="不符合情境" class="reason-radio"> 不符合情境</label>
+                            <label><input type="radio" name="reason-${bookId}" value="與書單資訊不符" class="reason-radio"> 與書單資訊不符</label>
+                            <label><input type="radio" name="reason-${bookId}" value="用錯語言" class="reason-radio"> 用錯語言</label>
+                            <label><input type="radio" name="reason-${bookId}" value="其他" class="reason-radio"> 其他</label>
+                            <input type="text" class="other-input" placeholder="請輸入其他原因...">
+                            <button class="submit-dislike-btn">送出回饋</button>
+                        </div>
+                        
+                        <div class="feedback-msg">謝謝您的回饋！</div>
+                    </div>
                 </div>
             `;
-            container.append(cardHtml);
+                    container.append(cardHtml); //[cite: 1]
+                });
+            }
+
+            function showError(msg) { $('#errorMsg').text(msg).fadeIn(); setTimeout(() => { $('#errorMsg').fadeOut(); }, 5000); }
+            $('#queryInput').on('keypress', function (e) { if (e.which === 13) { $('#searchBtn').click(); } });
+            renderExamples();
+
+            // ====== 新增：回饋事件綁定 ======
+
+            // 發送資料的共用函式
+            function sendFeedbackToSheet(card, feedbackType, reason = "", otherReason = "") {
+                const payload = {
+                    timestamp: new Date().toLocaleString('zh-TW', { hour12: false }), // 日期時間
+                    bookId: card.data('bookid'),
+                    bookTitle: card.data('booktitle'),
+                    queryContext: card.data('query'), // 情境句子
+                    feedbackType: feedbackType,       // 讚 或 倒讚
+                    reason: reason,
+                    otherReason: otherReason
+                };
+
+                if (GOOGLE_SHEET_API_URL !== "在此輸入您的_GOOGLE_APPS_SCRIPT_網址") {
+                    fetch(GOOGLE_SHEET_API_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // 避免跨域阻擋 (CORS)
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).catch(err => console.error("傳送回饋失敗:", err));
+                } else {
+                    console.log("尚未設定 Google Sheet URL，傳送資料如下：", payload);
+                }
+            }
+
+            // 點擊「讚」
+            $(document).on('click', '.like-btn', function () {
+                const card = $(this).closest('.book-card');
+                const section = $(this).closest('.feedback-section');
+
+                sendFeedbackToSheet(card, '讚');
+
+                // 隱藏按鈕與表單，只顯示謝意
+                section.find('.feedback-buttons').hide();
+                section.find('.dislike-form').hide();
+                section.find('.feedback-msg').fadeIn();
+            });
+
+            // 點擊「倒讚」
+            $(document).on('click', '.dislike-btn', function () {
+                const section = $(this).closest('.feedback-section');
+                section.find('.feedback-buttons').hide();
+                section.find('.dislike-form').fadeIn();
+            });
+
+            // 選擇「其他」原因時，顯示輸入框
+            $(document).on('change', '.reason-radio', function () {
+                const form = $(this).closest('.dislike-form');
+                if ($(this).val() === '其他') {
+                    form.find('.other-input').slideDown();
+                } else {
+                    form.find('.other-input').slideUp();
+                }
+            });
+
+            // 送出「倒讚」原因
+            $(document).on('click', '.submit-dislike-btn', function () {
+                const card = $(this).closest('.book-card');
+                const section = $(this).closest('.feedback-section');
+                const form = section.find('.dislike-form');
+
+                const selectedReason = form.find('.reason-radio:checked').val();
+                if (!selectedReason) {
+                    alert('請選擇一個原因！');
+                    return;
+                }
+
+                const otherReasonText = selectedReason === '其他' ? form.find('.other-input').val().trim() : "";
+                if (selectedReason === '其他' && !otherReasonText) {
+                    alert('請輸入其他原因！');
+                    return;
+                }
+
+                sendFeedbackToSheet(card, '倒讚', selectedReason, otherReasonText);
+
+                // 隱藏表單，顯示謝意
+                form.hide();
+                section.find('.feedback-msg').fadeIn();
+            });
         });
-    }
-
-    function showError(msg) {
-        $('#errorMsg').text(msg).fadeIn();
-        setTimeout(() => {
-            $('#errorMsg').fadeOut();
-        }, 5000);
-    }
-
-    // Enter 鍵觸發搜尋
-    $('#queryInput').on('keypress', function(e) {
-        if (e.which === 13) {
-            $('#searchBtn').click();
-        }
-    });
-
-    // 初始載入範例
-    renderExamples();
-});
-</script>
-
+    </script>
 </body>
+
 </html>
