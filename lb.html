@@ -24,40 +24,41 @@
             padding: 20px;
         }
 
-        .container {
+        /* AI找書 開始 */
+        .ai_find_book_box {
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        .header {
+        .ai_find_book_box .header {
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .header p {
+        .ai_find_book_box .header p {
             color: var(--text-muted);
         }
 
-        .search-section {
+        .ai_find_book_box .search-section {
             background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
             margin-bottom: 30px;
         }
 
-        .input-group {
+        .ai_find_book_box .input-group {
             position: relative;
             display: flex;
             gap: 15px;
             margin-bottom: 15px;
         }
 
-        .input-wrapper {
+        .ai_find_book_box .input-wrapper {
             flex-grow: 1;
             position: relative;
         }
 
-        input[type="text"] {
+        .ai_find_book_box input[type="text"] {
             width: 100%;
             padding: 12px 15px;
             padding-right: 60px;
@@ -69,11 +70,11 @@
             transition: border-color 0.2s;
         }
 
-        input[type="text"]:focus {
+        .ai_find_book_box input[type="text"]:focus {
             border-color: var(--primary-color);
         }
 
-        .char-count {
+        .ai_find_book_box .char-count {
             position: absolute;
             right: 15px;
             top: 50%;
@@ -82,7 +83,7 @@
             font-size: 13px;
         }
 
-        button.search-btn {
+        .ai_find_book_box button.search-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
@@ -95,29 +96,28 @@
             white-space: nowrap;
         }
 
-        button.search-btn:hover:not(:disabled) {
+        .ai_find_book_box button.search-btn:hover:not(:disabled) {
             background-color: var(--primary-hover);
         }
 
-        button.search-btn:disabled {
-            background-color: #A5B4FC;
+        .ai_find_book_box button.search-btn:disabled {
             cursor: not-allowed;
         }
 
-        .examples-section {
+        .ai_find_book_box .examples-section {
             display: flex;
             align-items: flex-start;
             gap: 15px;
             flex-wrap: wrap;
         }
 
-        .note-container p {
+        .ai_find_book_box .note-container p {
             color: #666;
             font-size: 13px;
             line-height: 1em;
         }
 
-        .refresh-btn {
+        .ai_find_book_box .refresh-btn {
             background: none;
             border: 1px solid var(--primary-color);
             color: var(--primary-color);
@@ -128,19 +128,19 @@
             transition: all 0.2s;
         }
 
-        .refresh-btn:hover {
+        .ai_find_book_box .refresh-btn:hover {
             background: var(--primary-color);
             color: white;
         }
 
-        .tags-container {
+        .ai_find_book_box .tags-container {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             flex-grow: 1;
         }
 
-        .example-tag {
+        .ai_find_book_box .example-tag {
             background: #e2f0f1;
             color: #4480af;
             padding: 5px 20px;
@@ -151,11 +151,11 @@
             user-select: none;
         }
 
-        .example-tag:hover {
+        .ai_find_book_box .example-tag:hover {
             color: #da640a;
         }
 
-        .loading-box {
+        .ai_find_book_box .loading-box {
             display: none;
             text-align: center;
             padding: 40px;
@@ -163,7 +163,7 @@
             font-size: 18px;
         }
 
-        .spinner {
+        .ai_find_book_box .spinner {
             display: inline-block;
             width: 30px;
             height: 30px;
@@ -181,13 +181,13 @@
             }
         }
 
-        .results-grid {
+        .ai_find_book_box .results-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
             gap: 20px;
         }
 
-        .book-card {
+        .ai_find_book_box .book-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -196,7 +196,7 @@
             flex-direction: column;
         }
 
-        .book-title {
+        .ai_find_book_box .book-title {
             font-size: 18px;
             font-weight: bold;
             color: var(--primary-color);
@@ -204,13 +204,13 @@
             line-height: 1.4;
         }
 
-        .book-meta {
+        .ai_find_book_box .book-meta {
             font-size: 14px;
             color: var(--text-muted);
             margin-bottom: 5px;
         }
 
-        .book-summary {
+        .ai_find_book_box .book-summary {
             font-size: 14px;
             color: var(--text-main);
             margin: 15px 0;
@@ -223,7 +223,7 @@
             text-overflow: ellipsis;
         }
 
-        .book-link {
+        .ai_find_book_box .book-link {
             display: inline-block;
             text-align: center;
             background: #F3F4F6;
@@ -237,13 +237,13 @@
             margin-top: auto;
         }
 
-        .book-link:hover {
+        .ai_find_book_box .book-link:hover {
             background: #E5E7EB;
         }
 
-        .error-msg {
-            color: #DC2626;
-            background: #FEE2E2;
+        .ai_find_book_box .error-msg {
+            color: #ff6670;
+            background: #fff3f3;
             padding: 15px;
             border-radius: 8px;
             text-align: center;
@@ -252,87 +252,76 @@
         }
 
         @media (max-width: 600px) {
-            .input-group {
+            .ai_find_book_box .input-group {
                 flex-direction: column;
             }
 
-            button.search-btn {
+            .ai_find_book_box button.search-btn {
                 width: 100%;
             }
         }
 
-        /* ====== 新增：回饋功能的 CSS ====== */
-        /* ====== 新增：回饋功能的 CSS ====== */
-        .feedback-section {
+        .ai_find_book_box .feedback-section {
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px dashed var(--border-color);
         }
 
-        .feedback-buttons {
+        .ai_find_book_box .feedback-buttons {
             display: flex;
             gap: 8px;
             justify-content: flex-start;
-            /* 讓按鈕靠左排列，不強制拉伸填滿 */
         }
 
-        .feedback-btn {
-            /* 移除了 flex: 1 */
+        .ai_find_book_box .feedback-btn {
             padding: 4px 12px;
-            /* 縮小內距 */
             border: 1px solid var(--border-color);
             background: #fff;
             border-radius: 6px;
             cursor: pointer;
             transition: 0.2s;
             font-size: 13px;
-            /* 縮小字體 */
         }
 
-        .feedback-btn:hover {
+        .ai_find_book_box .feedback-btn:hover {
             background: #F3F4F6;
         }
 
-        .like-btn:hover {
+        .ai_find_book_box .like-btn:hover {
             color: #059669;
             border-color: #059669;
         }
 
-        .dislike-btn:hover {
+        .ai_find_book_box .dislike-btn:hover {
             color: #DC2626;
             border-color: #DC2626;
         }
 
-        .dislike-form {
+        .ai_find_book_box .dislike-form {
             display: none;
             margin-top: 8px;
             font-size: 13px;
-            /* 縮小表單字體 */
             background: #F9FAFB;
             padding: 10px 12px;
-            /* 縮小表單內距 */
             border-radius: 6px;
         }
 
-        /* 針對表單內的標題稍微調整 */
-        .dislike-form p {
+        .ai_find_book_box .dislike-form p {
             margin: 0 0 8px 0;
             font-weight: bold;
             font-size: 13px;
         }
 
-        .dislike-form label {
+        .ai_find_book_box .dislike-form label {
             display: block;
             margin-bottom: 4px;
-            /* 縮小選項間距 */
             cursor: pointer;
             color: var(--text-main);
         }
 
-        .other-input {
+        .ai_find_book_box input[type="text"].other-input {
             width: 100%;
             padding: 6px 8px;
-            /* 縮小輸入框高度 */
             margin-top: 4px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
@@ -342,42 +331,40 @@
             font-size: 13px;
         }
 
-        .other-input:focus {
+        .ai_find_book_box .other-input:focus {
             border-color: var(--primary-color);
         }
 
-        .submit-dislike-btn {
+        .ai_find_book_box .submit-dislike-btn {
             margin-top: 8px;
             padding: 6px 12px;
-            /* 縮小送出按鈕 */
             background: var(--text-muted);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 13px;
-            /* 移除了 width: 100%，讓按鈕只佔需要的寬度 */
         }
 
-        .submit-dislike-btn:hover {
+        .ai_find_book_box .submit-dislike-btn:hover {
             background: var(--text-main);
         }
 
-        .feedback-msg {
+        .ai_find_book_box .feedback-msg {
             color: #059669;
             font-weight: bold;
             text-align: left;
-            /* 改為靠左對齊，視覺更低調 */
             font-size: 13px;
             display: none;
             margin-top: 5px;
         }
+        /* AI找書 結束 */
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="ai_find_book_box">
         <div class="header">
             <p>每一段心情，都有適合它的文字。告訴 AI 你現在的情境，尋找靈感之書。</p>
         </div>
@@ -413,6 +400,7 @@
     </div>
 
     <script>
+        /* AI找書 開始 */
         const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyWiENAu6pzdw9CY61H-EGDUelPoK47z5nQkBCt-boN9a1ttgWrbMIcuCAqmy3_Sz9_/exec";
 
         $(document).ready(function () {
@@ -661,7 +649,7 @@
                     success: function (response) {
                         $('#loadingBox').hide();
                         $('#searchBtn').prop('disabled', false).text('AI 找書');
-                        renderResults(response.results, query); // 傳遞 query 以利記錄情境句子
+                        renderResults(response.results, query);
                     },
                     error: function (xhr) {
                         $('#loadingBox').hide();
@@ -673,7 +661,6 @@
                 });
             });
 
-            // ====== 修改：渲染書籍卡片，加入回饋區塊與 data 屬性 ======
             function renderResults(results, currentQuery) {
                 if (!results || results.length === 0) {
                     $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">找不到相關書籍，請嘗試其他情境描述。</p>');
@@ -693,14 +680,13 @@
                     const bookId = item.id;
                     const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`;
 
-                    // 增加 data 屬性與 feedback-section
                     const cardHtml = `
                 <div class="book-card" data-bookid="${bookId}" data-booktitle="${fullTitle}" data-query="${currentQuery}">
                     <h3 class="book-title">${fullTitle}</h3>
                     <div class="book-meta">👤 作者：${authors}</div>
                     <div class="book-meta">🏷️ ISBN：${isbn}</div>
                     <div class="book-summary" title="${summary}">${summary}</div>
-                    <a href="${detailUrl}" target="_blank" class="book-link" style="margin-bottom: 10px;">檢視詳細館藏</a>
+                    <a href="${detailUrl}" target="_blank" class="book-link" style="margin-bottom: 10px;">詳細書目</a>
                     
                     <div class="feedback-section">
                         <div class="feedback-buttons">
@@ -726,13 +712,18 @@
                 });
             }
 
-            function showError(msg) { $('#errorMsg').text(msg).fadeIn(); setTimeout(() => { $('#errorMsg').fadeOut(); }, 5000); }
-            $('#queryInput').on('keypress', function (e) { if (e.which === 13) { $('#searchBtn').click(); } });
+            function showError(msg) {
+                $('#errorMsg').text(msg).fadeIn();
+                setTimeout(() => { $('#errorMsg').fadeOut(); }, 5000);
+            }
+            $('#queryInput').on('keypress', function (e) {
+                if (e.which === 13) {
+                    $('#searchBtn').click();
+                }
+            });
             renderExamples();
 
-            // ====== 回饋事件綁定 ======
 
-            // 發送資料的共用函式
             function sendFeedbackToSheet(card, feedbackType, reason = "", otherReason = "") {
                 const payload = {
                     timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
@@ -752,27 +743,22 @@
                 }).catch(err => console.error("傳送回饋失敗:", err));
             }
 
-            // 點擊「喜歡」
             $(document).on('click', '.like-btn', function () {
                 const card = $(this).closest('.book-card');
                 const section = $(this).closest('.feedback-section');
 
                 sendFeedbackToSheet(card, '喜歡');
-
-                // 隱藏按鈕與表單，只顯示謝意
                 section.find('.feedback-buttons').hide();
                 section.find('.dislike-form').hide();
                 section.find('.feedback-msg').fadeIn();
             });
 
-            // 點擊「不喜歡」
             $(document).on('click', '.dislike-btn', function () {
                 const section = $(this).closest('.feedback-section');
                 section.find('.feedback-buttons').hide();
                 section.find('.dislike-form').fadeIn();
             });
 
-            // 選擇「其他」原因時，顯示輸入框
             $(document).on('change', '.reason-radio', function () {
                 const form = $(this).closest('.dislike-form');
                 if ($(this).val() === '其他') {
@@ -782,7 +768,6 @@
                 }
             });
 
-            // 送出「不喜歡」原因
             $(document).on('click', '.submit-dislike-btn', function () {
                 const card = $(this).closest('.book-card');
                 const section = $(this).closest('.feedback-section');
@@ -801,12 +786,11 @@
                 }
 
                 sendFeedbackToSheet(card, '不喜歡', selectedReason, otherReasonText);
-
-                // 隱藏表單，顯示謝意
                 form.hide();
                 section.find('.feedback-msg').fadeIn();
             });
         });
+        /* AI找書 結束 */
     </script>
 </body>
 
