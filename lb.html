@@ -585,11 +585,12 @@
                     shuffled[index] = shuffled[i];
                     shuffled[i] = temp;
                 }
-                return shuffled.slice(min);
+                //return shuffled.slice(min);
+                return rawExamples.slice();
             }
 
             function renderExamples() {
-                const selected = getRandomExamples(800);
+                const selected = getRandomExamples(8);
                 const container = $('#tagsContainer');
                 container.empty();
                 selected.forEach(text => {
