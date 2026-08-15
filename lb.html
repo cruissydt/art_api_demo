@@ -194,6 +194,10 @@
             margin-bottom: 5px;
         }
 
+        .ai_find_book_box .book-meta.score {
+            display: none;
+        }
+
         .ai_find_book_box .book-summary {
             font-size: 14px;
             margin: 15px 0;
@@ -643,13 +647,7 @@
                 });
             });
 
-            const SCORE_THRESHOLD = 0.5; // score 低於此門檻的書籍不顯示，可依實際分數範圍調整
-
             function renderResults(results, currentQuery) {
-                if (results && results.length) {
-                    //results = results.filter(item => item.score === undefined || item.score === null || item.score >= SCORE_THRESHOLD);
-                }
-
                 if (!results || results.length === 0) {
                     $('#resultsContainer').html('<p style="grid-column: 1/-1; text-align: center; color: #6B7280;">找不到相關書籍，請嘗試其他情境描述。</p>');
                     return;
@@ -666,15 +664,14 @@
                     const isbn = item.isbn || '無 ISBN';
                     const summary = item.summary || '暫無摘要';
                     const bookId = item.id;
-                    const score = item.score;
                     const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`;
 
                     const cardHtml = `
                 <div class="book-card" data-bookid="${bookId}" data-booktitle="${fullTitle}" data-query="${currentQuery}">
                     <h3 class="book-title">${fullTitle}</h3>
-                    <div class="book-meta">👤 作者：${authors}</div>
-                    <div class="book-meta">🏷️ ISBN：${isbn}</div>
-                    <div class="book-meta">score：${score}</div>
+                    <div class="book-meta">🏷️作者：${authors}</div>
+                    <div class="book-meta">🏷️ISBN：${isbn}</div>
+                    <div class="book-meta score">🏷️score：${score}</div>
                     <div class="book-summary" title="${summary}">${summary}</div>
                     <a href="${detailUrl}" class="book-link" style="margin-bottom: 10px;">詳細書目</a>
                     
