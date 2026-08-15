@@ -647,7 +647,7 @@
 
             function renderResults(results, currentQuery) {
                 if (results && results.length) {
-                    results = results.filter(item => item.score === undefined || item.score === null || item.score >= SCORE_THRESHOLD);
+                    //results = results.filter(item => item.score === undefined || item.score === null || item.score >= SCORE_THRESHOLD);
                 }
 
                 if (!results || results.length === 0) {
