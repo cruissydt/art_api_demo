@@ -366,6 +366,7 @@
                 <p>💡 保護隱私：請勿輸入個人資料、機密資訊或其他敏感內容。</p>
                 <p>💡 容錯提醒：AI 語意理解偶有偏誤，書籍資訊請以實際內容為準。</p>
                 <p>💡 內容來源：部分書籍資訊與內容可能來自網路資料。</p>
+                <p class="test_view"></p>
             </div>
 
             <div class="examples-section">
@@ -636,6 +637,13 @@
                         $('#loadingBox').hide();
                         $('#searchBtn').prop('disabled', false).text('AI 找書');
                         renderResults(response.results, query);
+                        //
+                        var test_view = '';
+                        test_view += "是否使用AI改寫query:" + response.ising_rewrite + "<br>";
+                        test_view += "是否使用AI推薦:" + response.ising_llm_msg + "<br>";
+                        test_view += "原始查詢:" + response.org_query + "<br>";
+                        test_view += "改寫查詢:" + response.query + "<br>";
+                        $(".test_view").html(test_view);
                     },
                     error: function (xhr) {
                         $('#loadingBox').hide();
@@ -663,15 +671,16 @@
                     const authors = item.authors || '未知作者';
                     const isbn = item.isbn || '無 ISBN';
                     const summary = item.summary || '暫無摘要';
-                    const bookId = item.id;
+                    const lang = item.lang || '未知語言';
                     const score = item.score;
+                    const bookId = item.id;
                     const detailUrl = `https://lb30.libraryandbook.net/Book_detial/${bookId}`;
-
                     const cardHtml = `
                 <div class="book-card" data-bookid="${bookId}" data-booktitle="${fullTitle}" data-query="${currentQuery}">
-                    <h3 class="book-title">${fullTitle}</h3>
+                    <h3 class="book-title"><a href="${detailUrl}">${fullTitle}</a></h3>
                     <div class="book-meta">🏷️作者：${authors}</div>
                     <div class="book-meta">🏷️ISBN：${isbn}</div>
+                    <div class="book-meta">🏷️語言別：${lang}</div>
                     <div class="book-meta score">🏷️相關度：${score}</div>
                     <div class="book-summary" title="${summary}">${summary}</div>
                     <a href="${detailUrl}" class="book-link" style="margin-bottom: 10px;">詳細書目</a>
@@ -697,6 +706,8 @@
                 </div>
             `;
                     container.append(cardHtml);
+
+
                 });
             }
 
