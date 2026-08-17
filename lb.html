@@ -171,6 +171,7 @@
         }
 
         .ai_find_book_box .refresh-btn {
+            display: none;
             background: none;
             border: 1px solid #44a6af;
             color: #44a6af;
@@ -420,7 +421,6 @@
             display: none;
             margin-top: 5px;
         }
-
         /* AI找書 結束 */
     </style>
 </head>
@@ -639,6 +639,7 @@
                         if (response.success && Array.isArray(response.examples)) {
                             rawExamples = response.examples;
                             renderExamples();
+                            $(".refresh-btn").show();
                         } else {
                             showError('無法取得情境範例。');
                         }
