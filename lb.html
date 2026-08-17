@@ -483,7 +483,7 @@
         const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyWiENAu6pzdw9CY61H-EGDUelPoK47z5nQkBCt-boN9a1ttgWrbMIcuCAqmy3_Sz9_/exec";
 
         $(document).ready(function () {
-            const rawExamples = [];
+            let rawExamples = [];
 
             function getRandomExamples(count) {
                 let shuffled = rawExamples.slice(0), i = rawExamples.length, min = i - count, temp, index;
@@ -628,6 +628,27 @@
                     $('#searchBtn').click();
                 }
             });
+
+
+            function loadExamples() {
+                $.ajax({
+                    url: GOOGLE_SHEET_API_URL,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success && Array.isArray(response.examples)) {
+                            rawExamples = response.examples;
+                            renderExamples();
+                        } else {
+                            showError('無法取得情境範例。');
+                        }
+                    },
+                    error: function () {
+                        showError('無法連線取得情境範例，請洽詢UI工程師。');
+                    }
+                });
+            }
+            
             loadExamples();
 
 
@@ -697,24 +718,7 @@
                 section.find('.feedback-msg').fadeIn();
             });
 
-            function loadExamples() {
-                $.ajax({
-                    url: GOOGLE_SHEET_API_URL,
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.success && Array.isArray(response.examples)) {
-                            rawExamples = response.examples;
-                            renderExamples();
-                        } else {
-                            showError('無法取得情境範例。');
-                        }
-                    },
-                    error: function () {
-                        showError('無法連線取得情境範例，請洽詢UI工程師。');
-                    }
-                });
-            }
+            
 
         });
         /* AI找書 結束 */
