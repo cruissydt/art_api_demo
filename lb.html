@@ -598,8 +598,9 @@
                     shuffled[index] = shuffled[i];
                     shuffled[i] = temp;
                 }
-                //return shuffled.slice(min);
-                return rawExamples.slice();
+                return shuffled.slice(min);
+                //全部顯示
+                //return rawExamples.slice();
             }
 
             function renderExamples() {
