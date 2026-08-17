@@ -14,6 +14,7 @@
             margin: 0 auto;
         }
 
+        /*
         .page_find_book::before {
             display: block;
             content: " ";
@@ -25,6 +26,7 @@
             background: url(https://sydtfrank.github.io/koha_ds-1/v_02/uploads/doll_09.svg) 50% 50% no-repeat;
             background-size: cover;
         }
+        */
 
         .page_find_book .header-section {
             text-align: center;
@@ -309,58 +311,6 @@
             border-top: 1px dashed #edf2f7;
         }
 
-        /* === 評價回饋區塊 CSS === */
-        .page_find_book .book-feedback {
-            font-size: 13px;
-            color: #4a5568;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .page_find_book .btn-feedback {
-            background: none;
-            border: 1px solid #e2e8f0;
-            background-color: #f7fafc;
-            color: #718096;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .page_find_book .btn-feedback:hover {
-            background-color: #edf2f7;
-            border-color: #cbd5e0;
-            transform: scale(1.05);
-        }
-
-        .page_find_book .btn-feedback.active-like {
-            background-color: #ebf8ff;
-            border-color: #3182ce;
-            color: #3182ce;
-        }
-
-        .page_find_book .btn-feedback.active-dislike {
-            background-color: #fff5f5;
-            border-color: #e53e3e;
-            color: #e53e3e;
-        }
-
-        .page_find_book .feedback-reasons {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #edf2f7;
-            width: 100%;
-        }
-
         .page_find_book .reasons-title {
             font-size: 12px;
             color: #718096;
@@ -386,12 +336,6 @@
 
         .page_find_book .btn-reason:hover {
             background-color: #e2e8f0;
-        }
-
-        .page_find_book .feedback-thank {
-            font-size: 13px;
-            color: #3182ce;
-            font-weight: 600;
         }
 
         .page_find_book .book-link {
@@ -437,8 +381,9 @@
             </div>
 
             <div class="note-container">
-                <p>⚠️ 保護隱私：請勿輸入個人個資、機密或敏感違規內容。</p>
-                <p>⚠️ 容錯提醒：AI 語意理解偶有偏誤，書單資訊請以實際內容為準。</p>
+                <p>💡 保護隱私：請勿輸入個人資料、機密資訊或其他敏感內容。</p>
+                <p>💡 容錯提醒：AI 語意理解偶有偏誤，書籍資訊請以實際內容為準。</p>
+                <p>💡 內容來源：部分書籍資訊與內容可能來自網路資料。</p>
                 <p class="test_view"></p>
             </div>
 
@@ -709,57 +654,6 @@
                 });
             });
 
-            // ========================================================
-            // 回饋按鈕互動邏輯（使用事件委派處理動態產生的卡片）
-            // ========================================================
-
-            // 1. 點擊「讚 (Like)」
-            $resultsGrid.on('click', '.btn-like', function () {
-                const $card = $(this).closest('.book-card');
-                const bookId = $card.attr('data-book-id');
-
-                // 傳送到 GAS 試算表 - 按讚欄位
-                sendFeedbackToSheet(bookId, "按讚");
-
-                // 將 feedback 區域改為「謝謝您的回饋」
-                $card.find('.book-feedback').html('<span class="feedback-thank">🙏 謝謝您的回饋</span>');
-            });
-
-            // 2. 點擊「倒讚 (Dislike)」
-            $resultsGrid.on('click', '.btn-dislike', function () {
-                const $card = $(this).closest('.book-card');
-
-                // 改變按鈕為選中樣式
-                $(this).addClass('active-dislike');
-                $card.find('.btn-like').prop('disabled', true).css('opacity', '0.5');
-
-                // 展開選單原因
-                $card.find('.feedback-reasons').slideDown(150);
-            });
-
-            // 3. 點擊「不讚的原因」單選
-            $resultsGrid.on('click', '.btn-reason', function () {
-                const $card = $(this).closest('.book-card');
-                const bookId = $card.attr('data-book-id');
-                const reasonText = $(this).text();
-
-                // 傳送到 GAS 試算表 - 對應的倒讚原因欄位
-                let actionType = "";
-                if (reasonText === "不符合情境") {
-                    actionType = "按倒讚 - 不符合情境";
-                } else if (reasonText === "與書單資訊不符") {
-                    actionType = "按倒讚 - 與書單資訊不符";
-                } else if (reasonText === "用錯語言") {
-                    actionType = "按倒讚 - 用錯語言";
-                }
-                sendFeedbackToSheet(bookId, actionType);
-
-                // 將整個 feedback 區域改為「謝謝您的回饋」
-                $card.find('.book-feedback').html('<span class="feedback-thank">🙏 謝謝您的回饋</span>');
-
-                $card.find('.feedback-reasons').slideUp(150);
-            });
-
 
 
             function setLoadingState(isLoading) {
@@ -791,7 +685,6 @@
                     const safeAuthors = escapeHtml(book.authors || "未提供作者");
                     const safeIsbn = escapeHtml(book.isbn || "無 ISBN");
                     const summary = escapeHtml(book.summary || "目前無資料");
-                    const llmMsg = escapeHtml(book.llm_msg || "這本書可能對您的情境有所幫助。");
                     const bookUrl = "https://crm.koha.com.tw/cgi-bin/koha/opac-detail.pl?biblionumber=" + encodeURIComponent(book.id);
 
                     const cardHtml = `
@@ -800,26 +693,12 @@
                                 <h4 class="book-title" title="${safeTitle}">${safeTitle}</h4>
                             </div>
                             <div class="book-reason">
-                                <p class="book-authors">👤作者：${safeAuthors}</p>
-                                <p class="book-isbn">🔑ISBN：${safeIsbn}</p>
+                                <p class="book-authors">作者：${safeAuthors}</p>
+                                <p class="book-isbn">ISBN：${safeIsbn}</p>
                                 <p>${summary}</p>
-                                <p>${llmMsg}</p>
                             </div>
                             <div class="book-footer">
-                                <div class="book-feedback">
-                                    <span>有幫助嗎？</span>
-                                    <button type="button" class="btn-feedback btn-like" title="推薦/有幫助">👍</button>
-                                    <button type="button" class="btn-feedback btn-dislike" title="不符預期">👎</button>
-                                </div>
                                 <a href="${bookUrl}" class="book-link" rel="noopener noreferrer">檢視詳細館藏 ➔</a>
-                            </div>
-                            <div class="feedback-reasons">
-                                <p class="reasons-title">請選擇原因：</p>
-                                <div class="reasons-group">
-                                    <button type="button" class="btn-reason">不符合情境</button>
-                                    <button type="button" class="btn-reason">與書單資訊不符</button>
-                                    <button type="button" class="btn-reason">用錯語言</button>
-                                </div>
                             </div>
                         </div>
                     `;
@@ -842,33 +721,6 @@
                 });
             }
         });
-
-        function sendFeedbackToSheet(bookId, actionType) {
-            $.ajax({
-                url: "https://script.google.com/macros/s/AKfycbyPh2c_cnqsH6GbxINIqu7fz0WNxTneY2mEU0G-2gz01_HXSz9CvGgZrG1YS9IowBFf/exec",
-                type: "POST",
-                // 關鍵修改 1: 將 contentType 設為 text/plain，避免瀏覽器發送 OPTIONS 預檢請求而發生 CORS 報錯
-                contentType: "text/plain;charset=utf-8",
-                // 關鍵修改 2: 傳送 JSON 字串，GAS 後端用 e.postData.contents 一樣能正常解析
-                data: JSON.stringify({
-                    bookId: bookId,
-                    actionType: actionType
-                }),
-                success: function (res) {
-                    // 因 GAS Web App 轉址機制，有時候回傳結果會以字串形式進入
-                    let data = res;
-                    if (typeof res === "string") {
-                        try {
-                            data = JSON.parse(res);
-                        } catch (e) { }
-                    }
-                    console.log("回饋傳送成功:", data);
-                },
-                error: function (xhr, status, error) {
-                    console.error("回饋傳送失敗:", error);
-                }
-            });
-        }
         /* AI找書 結束 */
     </script>
 </body>
