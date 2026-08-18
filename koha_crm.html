@@ -354,6 +354,104 @@
             text-decoration: underline;
         }
 
+        .page_find_book .feedback-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #edf2f7;
+        }
+
+        .page_find_book .feedback-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+
+        .page_find_book .feedback-btn {
+            padding: 4px 12px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+
+        .page_find_book .feedback-btn:hover {
+            background: #f7fafc;
+        }
+
+        .page_find_book .like-btn:hover {
+            color: #059669;
+            border-color: #059669;
+        }
+
+        .page_find_book .dislike-btn:hover {
+            color: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .page_find_book .dislike-form {
+            display: none;
+            margin-top: 8px;
+            font-size: 13px;
+            background: #f7fafc;
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+
+        .page_find_book .dislike-form p {
+            margin: 0 0 8px 0;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .page_find_book .dislike-form label {
+            display: block;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .page_find_book .dislike-form label input {
+            appearance: auto;
+            height: auto;
+        }
+
+        .page_find_book input[type="text"].other-input {
+            width: 100%;
+            padding: 6px 8px;
+            margin-top: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: none;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .page_find_book .other-input:focus {
+            border-color: #3182ce;
+        }
+
+        .page_find_book .submit-dislike-btn {
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .page_find_book .feedback-msg {
+            color: #059669;
+            font-weight: bold;
+            text-align: left;
+            font-size: 13px;
+            display: none;
+            margin-top: 5px;
+        }
+
         @media (min-width: 768px) {
             .page_find_book .results-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -392,7 +490,8 @@
                     <span class="example-title">💡 試試看點擊以下的情境範例：</span>
                     <button type="button" class="btn-refresh-examples" id="btnRefreshExamples">🔄換一組</button>
                 </div>
-                <div class="example-tags" id="exampleTagsGrid">Loading...</div>
+                <div class="example-tags" id="exampleTagsGrid">
+                </div>
             </div>
 
             <button type="button" class="btn-submit" id="btnSubmit">AI 找書</button>
@@ -414,7 +513,7 @@
 
     <script>
         /* AI找書 開始 */
-        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyPh2c_cnqsH6GbxINIqu7fz0WNxTneY2mEU0G-2gz01_HXSz9CvGgZrG1YS9IowBFf/exec";
+        const GOOGLE_SHEET_API_URL = "請填入您的 Google Apps Script 已部署網址（koha_crm.gs 的 Web App URL）";
 
         $(document).ready(function () {
             const API_ENDPOINT = "https://artapi.zeabur.app/koha_crm/api/search";
@@ -434,6 +533,112 @@
             // ========================================================
             let rawExamples = [];
 
+            /* 原本寫死在前端的範例句子，已改為從 Google 試算表動態載入，故整段停用保留備查
+            const rawExamples_backup = [
+                "我想去日本自助旅行，有沒有教怎麼規劃行程的書？",
+                "有沒有介紹京都、大阪、神戶三個城市一起玩的旅遊書？",
+                "想帶小孩去東京玩，有親子旅遊的書嗎？",
+                "我想一個人自助去東京旅行",
+                "有沒有教怎麼搭地鐵玩曼谷、新加坡這種東南亞城市的書？",
+                "我要去歐洲自助旅行，想找講西班牙或義大利的深度旅遊書",
+                "有沒有介紹北海道美食和景點的書？",
+                "想找一個人旅行、背包客風格的散文書",
+                "有沒有介紹台灣老街、小鎮旅遊的書？",
+                "我想找講郵輪旅行怎麼玩的書",
+                "有沒有推薦沖繩親子或深度旅遊的書？",
+                "有沒有推薦沖繩旅遊的書？",
+                "我想學做義大利麵，有食譜書嗎？",
+                "有沒有教怎麼泡出好喝手沖咖啡的書？",
+                "想找減醣、低碳水的料理食譜",
+                "有沒有介紹葡萄酒品飲入門的書？",
+                "我想找電鍋料理的食譜，簡單方便的那種",
+                "有沒有教做麵包的烘焙教科書？",
+                "想找適合小孩吃的副食品或幼兒餐食譜",
+                "有沒有介紹日本家常菜怎麼做的書？",
+                "我想找素食或蔬食的料理書",
+                "有沒有教怎麼調雞尾酒的書？",
+                "有沒有講失智症照護的書？",
+                "我想找關於高血壓飲食控制的書",
+                "有沒有介紹肌力訓練或重量訓練的書？",
+                "想找講腸道健康、益生菌的書",
+                "有沒有關於憂鬱症、情緒調適的書？",
+                "我想找教怎麼照顧年邁父母的書",
+                "有沒有講糖尿病飲食療法的書？",
+                "想找瑜伽入門或伸展運動的書",
+                "有沒有講兒童自閉症或亞斯伯格症的書？",
+                "我想找睡眠品質改善的相關書籍",
+                "有沒有教怎麼克服焦慮的書？",
+                "我想找養成好習慣、建立自律生活的書",
+                "有沒有關於情緒勒索、拒絕別人的書？",
+                "我想找適合職場新鮮人看的溝通技巧書",
+                "有沒有講內向者如何自信表達的書？",
+                "想找阿德勒心理學相關的書",
+                "有沒有討論拖延症、如何不再拖延的書？",
+                "我想找講財富心態、理財心理的書",
+                "有沒有關於高敏感族群的書？",
+                "想找教怎麼跟難相處的人相處的書",
+                "有沒有教存股的入門書？",
+                "我想找ETF投資的教學書",
+                "有沒有講技術分析、K線的書？",
+                "想找適合小資族的理財書",
+                "有沒有講品牌行銷或商業模式設計的書？",
+                "我想找關於個人品牌經營、自媒體變現的書",
+                "我想找培養財商觀念、學習理財思維的入門書",
+                "想找講簡報技巧、如何做出打動人心簡報的書",
+                "有沒有談晶片產業、半導體的書？",
+                "我想找關於元宇宙、NFT的入門書",
+                "有沒有教Python從零開始學的書？",
+                "我想學做網頁，有HTML、CSS的入門書嗎？",
+                "有沒有介紹人工智慧、機器學習基礎的書？",
+                "想找ChatGPT怎麼用在工作上的書",
+                "有沒有教Excel VBA自動化處理的書？",
+                "我想找Arduino物聯網實作的書",
+                "有沒有講資料結構與演算法的教材？",
+                "想找Unity遊戲開發的入門書",
+                "有沒有介紹雲端服務、AWS或Azure的書？",
+                "我想找適合準備 APCS 檢定的程式設計基礎書",
+                "有沒有教平面設計配色的書？",
+                "我想找LOGO設計、品牌識別設計的書",
+                "有沒有講水彩畫入門技法的書？",
+                "想找日本知名建築師作品介紹的書",
+                "有沒有介紹室內設計小坪數格局的書？",
+                "我想找漫畫人物繪製技法的教學書",
+                "有沒有講攝影構圖與用光技巧的書？",
+                "想找介紹世界名畫、印象派藝術史的書",
+                "有沒有教字體排版、Typography的書？",
+                "我想找關於包浩斯設計運動的書",
+                "有沒有適合新多益準備的單字書？",
+                "我想找日檢N3、N4文法的參考書",
+                "有沒有教韓語40音入門的書？",
+                "想找旅遊會話用的實用英語書",
+                "有沒有講餐飲業英語會話的書？",
+                "我想找適合小朋友學英文的繪本",
+                "有沒有介紹全民英檢中級考試的模擬試題？",
+                "想找法語入門自學的教材",
+                "有沒有教商用英文email怎麼寫的書？",
+                "有沒有適合航空業、空服員使用的職場英語溝通書？",
+                "有沒有教小孩認識情緒的繪本？",
+                "我想找關於恐龍的兒童科普書",
+                "有沒有適合睡前唸給小孩聽的故事書？",
+                "想找教小孩理財觀念的童書",
+                "有沒有講昆蟲、大自然觀察的兒童圖鑑？",
+                "我想找介紹台灣妖怪與民間傳說的青少年小說",
+                "有沒有適合國小生看的世界史漫畫？",
+                "想找教小孩自我保護觀念的繪本",
+                "有沒有講環保、氣候變遷的兒童讀物？",
+                "我想找拼音、注音練習的兒童教材",
+                "有沒有推薦近期得獎的華文小說？",
+                "我想找日本推理小說，像東野圭吾那種",
+                "有沒有奇幻冒險類的小說？",
+                "想找講二戰歷史的紀實文學",
+                "有沒有適合國高中生看的成長小說？",
+                "我想找探討台灣歷史的通俗讀物",
+                "有沒有講哲學入門、生活哲學的書？",
+                "想找科幻小說，像三體那種硬科幻",
+                "我想找阿嘉莎·克莉絲蒂的古典偵探小說",
+                "我想找關於植物、園藝種植的生活書"
+            ];
+            */
 
             // ========================================================
             // 從 Google 試算表載入情境範例
@@ -621,9 +826,10 @@
                     const safeIsbn = escapeHtml(book.isbn || "無 ISBN");
                     const summary = escapeHtml(book.summary || "目前無資料");
                     const bookUrl = "https://crm.koha.com.tw/cgi-bin/koha/opac-detail.pl?biblionumber=" + encodeURIComponent(book.id);
+                    const safeQuery = escapeHtml(arg_query || "");
 
                     const cardHtml = `
-                        <div class="book-card" data-book-id="${book.id}">
+                        <div class="book-card" data-book-id="${book.id}" data-book-title="${safeTitle}" data-query="${safeQuery}">
                             <div class="book-meta">
                                 <h4 class="book-title" title="${safeTitle}">${safeTitle}</h4>
                             </div>
@@ -635,6 +841,24 @@
                             <div class="book-footer">
                                 <a href="${bookUrl}" class="book-link" rel="noopener noreferrer">檢視詳細館藏 ➔</a>
                             </div>
+                            <div class="feedback-section">
+                                <div class="feedback-buttons">
+                                    <button class="feedback-btn like-btn">喜歡</button>
+                                    <button class="feedback-btn dislike-btn">不喜歡</button>
+                                </div>
+
+                                <div class="dislike-form">
+                                    <p>請告訴我們原因：</p>
+                                    <label><input type="radio" name="reason-${book.id}" value="不符合情境" class="reason-radio"> 不符合情境</label>
+                                    <label><input type="radio" name="reason-${book.id}" value="與書單資訊不符" class="reason-radio"> 與書單資訊不符</label>
+                                    <label><input type="radio" name="reason-${book.id}" value="用錯語言" class="reason-radio"> 用錯語言</label>
+                                    <label><input type="radio" name="reason-${book.id}" value="其他" class="reason-radio"> 其他</label>
+                                    <input type="text" class="other-input" maxlength="30" placeholder="請輸入其他原因...(限 30 字)">
+                                    <button class="submit-dislike-btn">送出回饋</button>
+                                </div>
+
+                                <div class="feedback-msg">謝謝您的回饋！</div>
+                            </div>
                         </div>
                     `;
                     $resultsGrid.append(cardHtml);
@@ -642,6 +866,75 @@
 
                 $resultsContainer.fadeIn(300);
             }
+
+            // ========================================================
+            // 意見回饋：將喜歡／不喜歡送到 Google 試算表（透過 GAS doPost）
+            // ========================================================
+            function sendFeedbackToSheet(card, feedbackType, reason = "", otherReason = "") {
+                const payload = {
+                    timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
+                    bookId: card.data('book-id'),
+                    bookTitle: card.data('book-title'),
+                    queryContext: card.data('query'),
+                    feedbackType: feedbackType,
+                    reason: reason,
+                    otherReason: otherReason
+                };
+
+                fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(err => console.error("傳送回饋失敗:", err));
+            }
+
+            $(document).on('click', '.like-btn', function () {
+                const card = $(this).closest('.book-card');
+                const section = $(this).closest('.feedback-section');
+
+                sendFeedbackToSheet(card, '喜歡');
+                section.find('.feedback-buttons').hide();
+                section.find('.dislike-form').hide();
+                section.find('.feedback-msg').fadeIn();
+            });
+
+            $(document).on('click', '.dislike-btn', function () {
+                const section = $(this).closest('.feedback-section');
+                section.find('.feedback-buttons').hide();
+                section.find('.dislike-form').fadeIn();
+            });
+
+            $(document).on('change', '.reason-radio', function () {
+                const form = $(this).closest('.dislike-form');
+                if ($(this).val() === '其他') {
+                    form.find('.other-input').slideDown();
+                } else {
+                    form.find('.other-input').slideUp();
+                }
+            });
+
+            $(document).on('click', '.submit-dislike-btn', function () {
+                const card = $(this).closest('.book-card');
+                const section = $(this).closest('.feedback-section');
+                const form = section.find('.dislike-form');
+
+                const selectedReason = form.find('.reason-radio:checked').val();
+                if (!selectedReason) {
+                    alert('請選擇一個原因！');
+                    return;
+                }
+
+                const otherReasonText = selectedReason === '其他' ? form.find('.other-input').val().trim() : "";
+                if (selectedReason === '其他' && !otherReasonText) {
+                    alert('請輸入其他原因！');
+                    return;
+                }
+
+                sendFeedbackToSheet(card, '不喜歡', selectedReason, otherReasonText);
+                form.hide();
+                section.find('.feedback-msg').fadeIn();
+            });
 
             function escapeHtml(string) {
                 return String(string).replace(/[&<>"']/g, function (s) {
