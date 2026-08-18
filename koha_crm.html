@@ -131,6 +131,7 @@
         }
 
         .page_find_book .btn-refresh-examples {
+            display: none;
             font-size: 13px;
             color: #3182ce;
             background: none;
@@ -490,8 +491,7 @@
                     <span class="example-title">💡 試試看點擊以下的情境範例：</span>
                     <button type="button" class="btn-refresh-examples" id="btnRefreshExamples">🔄換一組</button>
                 </div>
-                <div class="example-tags" id="exampleTagsGrid">
-                </div>
+                <div class="example-tags" id="exampleTagsGrid">Loading...</div>
             </div>
 
             <button type="button" class="btn-submit" id="btnSubmit">AI 找書</button>
@@ -546,6 +546,7 @@
                         if (response && response.success && Array.isArray(response.examples) && response.examples.length > 0) {
                             rawExamples = response.examples;
                             renderRandomExamples();
+                            $(".btn-refresh-examples").show();
                         } else {
                             $exampleTagsGrid.empty();
                             showError("無法取得情境範例。");
