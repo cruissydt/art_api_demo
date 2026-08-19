@@ -167,7 +167,7 @@
         .ai_find_book_box .note-container p {
             color: #666;
             font-size: 13px;
-            line-height: 1em;
+            line-height: 1.5em;
         }
 
         .ai_find_book_box .refresh-btn {
@@ -260,7 +260,7 @@
         }
 
         .ai_find_book_box .book-title a:hover {
-            color: da640a;
+            color: #da640a;
         }
 
         .ai_find_book_box .book-meta {
@@ -421,12 +421,14 @@
             display: none;
             margin-top: 5px;
         }
+
         /* AI找書 結束 */
     </style>
 </head>
 
 <body>
 
+    <!-- AI找書 開始 -->
     <div class="ai_find_book_box">
         <div class="search-section">
             <div class="language-filter" id="languageFilter">
@@ -477,6 +479,7 @@
 
         <div class="results-grid" id="resultsContainer"></div>
     </div>
+    <!-- AI找書 結束 -->
 
     <script>
         /* AI找書 開始 */
@@ -547,8 +550,6 @@
                         renderResults(response.results, query);
                         //
                         var test_view = '';
-                        test_view += "是否使用AI改寫query:" + response.ising_rewrite + "<br>";
-                        test_view += "是否使用AI推薦:" + response.ising_llm_msg + "<br>";
                         test_view += "原始查詢:" + response.org_query + "<br>";
                         test_view += "改寫查詢:" + response.query + "<br>";
                         $(".test_view").html(test_view);
@@ -718,9 +719,6 @@
                 form.hide();
                 section.find('.feedback-msg').fadeIn();
             });
-
-            
-
         });
         /* AI找書 結束 */
     </script>

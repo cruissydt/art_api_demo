@@ -466,6 +466,8 @@
 
 <body>
 
+
+    <!-- AI找書 開始 -->
     <div class="page_find_book">
         <div class="header-section">
             <h4>讓AI為您找書</h4>
@@ -508,8 +510,9 @@
             <div class="results-grid" id="resultsGrid">
             </div>
         </div>
-
     </div>
+    <!-- AI找書 結束 -->
+
 
     <script>
         /* AI找書 開始 */
@@ -659,12 +662,9 @@
                     success: function (response) {
                         setLoadingState(false);
                         if (response && response.results && response.results.length > 0) {
-                            //renderResults(response.results, response.rewrite_query);
                             renderResults(response.results, response.query);
                             //
                             var test_view = '';
-                            test_view += "ising_rewrite:" + response.ising_rewrite + "<br>";
-                            test_view += "ising_llm_msg:" + response.ising_llm_msg + "<br>";
                             $(".test_view").html(test_view);
                         } else {
                             showError("查無符合相關的圖書，建議更換情境描述後再試。");
